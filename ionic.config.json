@@ -1,0 +1,7 @@
+{
+  "name": "SmartDriveTracking",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
