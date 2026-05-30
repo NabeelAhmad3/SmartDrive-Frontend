@@ -1,9 +1,14 @@
-import type { CapacitorConfig } from '@capacitor/cli';
+import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
+  appId: 'com.smartdrive.tracking',
   appName: 'SmartDriveTracking',
-  webDir: 'www'
+  webDir: 'www',
+  plugins: {
+    SplashScreen: {
+      launchShowDuration: 2000
+    }
+  }
 };
 
 export default config;

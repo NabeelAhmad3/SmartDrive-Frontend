@@ -68,3 +68,18 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+node_modules/
+www/
+.angular/
+dist/
+android/.gradle/
+android/app/build/
+android/build/
+ios/App/Pods/
+ios/App/build/
+.env
+*.log
+.DS_Store
+Thumbs.db
+.capacitor/
