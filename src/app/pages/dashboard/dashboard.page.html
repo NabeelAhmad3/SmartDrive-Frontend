@@ -1,13 +1,142 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>dashboard</ion-title>
+<ion-header class="ion-no-border">
+  <ion-toolbar class="dashboard-toolbar">
+    <div class="flex items-center justify-between px-4 py-2">
+      <div>
+        <p class="page-subtitle">Welcome back</p>
+        <h2 class="page-title">{{ driverName }}</h2>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="badge-info">{{ syncStatus }}</div>
+        <button (click)="logout()" class="icon-box">
+          <ion-icon name="log-out-outline"></ion-icon>
+        </button>
+      </div>
+    </div>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">dashboard</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="dashboard-content" [fullscreen]="true">
+  <div class="px-4 py-4 pb-24">
+    <div *ngIf="activeTrip" class="active-trip-banner mb-4">
+      <div class="flex items-center gap-3">
+        <div class="w-3 h-3 rounded-full bg-green-400 animate-pulse"></div>
+        <div>
+          <p class="section-title mb-0 text-green-300">Trip In Progress</p>
+          <p class="list-item-title">{{ activeTripDuration }} elapsed</p>
+        </div>
+      </div>
+      <button (click)="goToActiveTrip()" class="btn-active-trip">View →</button>
+    </div>
+    <div class="grid grid-cols-2 gap-3 mb-4">
+      <div class="stat-card">
+        <div class="icon-box-primary mb-2">
+          <ion-icon name="car-outline"></ion-icon>
+        </div>
+        <p class="text-2xl font-bold text-white">{{ totalTrips }}</p>
+        <p class="list-item-subtitle">Total Trips</p>
+      </div>
+      <div class="stat-card">
+        <div class="icon-box-primary mb-2">
+          <ion-icon name="navigate-outline"></ion-icon>
+        </div>
+        <p class="text-2xl font-bold text-white">
+          {{ totalDistance }} <span class="list-item-subtitle">km</span>
+        </p>
+        <p class="list-item-subtitle">Total Distance</p>
+      </div>
+      <div class="stat-card">
+        <div class="icon-box-primary mb-2">
+          <ion-icon name="speedometer-outline"></ion-icon>
+        </div>
+        <p class="text-2xl font-bold text-white">
+          {{ avgSpeed }} <span class="list-item-subtitle">km/h</span>
+        </p>
+        <p class="list-item-subtitle">Avg Speed</p>
+      </div>
+      <div class="stat-card">
+        <div class="icon-box-primary mb-2">
+          <ion-icon name="warning-outline"></ion-icon>
+        </div>
+        <p class="text-2xl font-bold text-white">{{ overspeedCount }}</p>
+        <p class="list-item-subtitle">Overspeed Alerts</p>
+      </div>
+    </div>
+    <div *ngIf="!activeTrip" class="card mb-4 text-center">
+      <div class="mb-4">
+        <div class="icon-box-primary w-16 h-16 rounded-full mx-auto mb-3">
+          <ion-icon name="play-circle-outline"></ion-icon>
+        </div>
+        <p class="list-item-title">Ready to drive?</p>
+        <p class="list-item-subtitle mt-1">Start a new trip to begin tracking</p>
+      </div>
+      <button (click)="startTrip()" [disabled]="isStartingTrip" class="btn-primary">
+        <span *ngIf="!isStartingTrip" class="spinner-wrap">
+          <ion-icon name="play-outline"></ion-icon>
+          Start New Trip
+        </span>
+        <span *ngIf="isStartingTrip" class="spinner-wrap">
+          <ion-spinner name="crescent"></ion-spinner>
+          Starting...
+        </span>
+      </button>
+    </div>
+    <p class="section-title">Quick Actions</p>
+    <div class="grid grid-cols-3 gap-3 mb-4">
+      <button (click)="goTo('trip-history')" class="quick-action-btn">
+        <div class="icon-box mx-auto mb-2">
+          <ion-icon name="time-outline"></ion-icon>
+        </div>
+        <p class="list-item-subtitle text-center">History</p>
+      </button>
+      <button (click)="goTo('trip-active')" class="quick-action-btn">
+        <div class="icon-box mx-auto mb-2">
+          <ion-icon name="map-outline"></ion-icon>
+        </div>
+        <p class="list-item-subtitle text-center">Live Map</p>
+      </button>
+      <button (click)="goTo('settings')" class="quick-action-btn">
+        <div class="icon-box mx-auto mb-2">
+          <ion-icon name="settings-outline"></ion-icon>
+        </div>
+        <p class="list-item-subtitle text-center">Settings</p>
+      </button>
+    </div>
+    <p class="section-title">Recent Trips</p>
+
+    <div *ngIf="recentTrips.length === 0" class="card text-center py-8">
+      <div class="icon-box mx-auto mb-2">
+        <ion-icon name="car-outline"></ion-icon>
+      </div>
+      <p class="list-item-subtitle">No trips yet. Start your first trip!</p>
+    </div>
+
+    <div *ngFor="let trip of recentTrips" class="list-item">
+      <div class="flex items-center gap-3">
+        <div class="icon-box flex-shrink-0">
+          <ion-icon name="car-outline"></ion-icon>
+        </div>
+        <div>
+          <p class="list-item-title">Trip #{{ trip.id }}</p>
+          <p class="list-item-subtitle">{{ trip.start_time | date:'dd MMM, hh:mm a' }}</p>
+          <p class="list-item-subtitle">{{ trip.total_distance }} km · Max {{ trip.max_speed }} km/h</p>
+        </div>
+      </div>
+      <div class="flex flex-col items-end gap-1">
+        <span [class]="trip.status === 'completed' ? 'badge-success' : 'badge-info'">
+          {{ trip.status }}
+        </span>
+        <p class="list-item-subtitle">{{ trip.avg_speed }} km/h avg</p>
+      </div>
+    </div>
+    <div *ngIf="unsyncedCount > 0" class="card-sm mt-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <ion-icon name="cloud-upload-outline" class="text-[#00D4FF]"></ion-icon>
+          <p class="list-item-subtitle">{{ unsyncedCount }} points pending sync</p>
+        </div>
+        <button (click)="syncNow()" class="badge-info">Sync Now</button>
+      </div>
+    </div>
+
+  </div>
 </ion-content>
