@@ -1,13 +1,114 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>login</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="login-content" [fullscreen]="true">
+  <div class="page-bg justify-center relative overflow-hidden">
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+      <div class="bg-blob-cyan"></div>
+      <div class="bg-blob-purple"></div>
+      <div class="bg-blob-center"></div>
+    </div>
+    <div class="page-wrapper">
+      <div class="app-logo">
+        <ion-icon name="car-sport"></ion-icon>
+      </div>
+      <h1 class="app-name">SmartDrive</h1>
+      <p class="page-subtitle">Vehicle Tracking System</p>
+    </div>
+    <div class="relative z-10 card">
+      <div class="tab-wrapper">
+        <button (click)="switchTab('login')" [class]="activeTab === 'login' ? 'tab-btn-active' : 'tab-btn'">
+          Sign In
+        </button>
+        <button (click)="switchTab('register')" [class]="activeTab === 'register' ? 'tab-btn-active' : 'tab-btn'">
+          Register
+        </button>
+      </div>
+      <div *ngIf="activeTab === 'login'">
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">login</ion-title>
-    </ion-toolbar>
-  </ion-header>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <div class="relative">
+            <span class="form-input-icon">
+              <ion-icon name="mail-outline"></ion-icon>
+            </span>
+            <input type="email" [(ngModel)]="loginEmail" placeholder="driver@smartdrive.com" class="form-input" />
+          </div>
+        </div>
+
+        <div class="form-group mb-6">
+          <label class="form-label">Password</label>
+          <div class="relative">
+            <span class="form-input-icon">
+              <ion-icon name="lock-closed-outline"></ion-icon>
+            </span>
+            <input [type]="showPassword ? 'text' : 'password'" [(ngModel)]="loginPassword" placeholder="••••••••"
+              class="form-input pr-12" />
+            <button (click)="showPassword = !showPassword" class="input-action-btn">
+              <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="errorMessage" class="alert-error">{{ errorMessage }}</div>
+
+        <button (click)="login()" [disabled]="isLoading" class="btn-primary">
+          <span *ngIf="!isLoading">Sign In →</span>
+          <span *ngIf="isLoading" class="spinner-wrap">
+            <ion-spinner name="crescent"></ion-spinner>
+            Signing in...
+          </span>
+        </button>
+
+      </div>
+      <div *ngIf="activeTab === 'register'">
+
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <div class="relative">
+            <span class="form-input-icon">
+              <ion-icon name="person-outline"></ion-icon>
+            </span>
+            <input type="text" [(ngModel)]="registerName" placeholder="Ahmad Khan" class="form-input" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <div class="relative">
+            <span class="form-input-icon">
+              <ion-icon name="mail-outline"></ion-icon>
+            </span>
+            <input type="email" [(ngModel)]="registerEmail" placeholder="driver@smartdrive.com" class="form-input" />
+          </div>
+        </div>
+
+        <div class="form-group mb-6">
+          <label class="form-label">Password</label>
+          <div class="relative">
+            <span class="form-input-icon">
+              <ion-icon name="lock-closed-outline"></ion-icon>
+            </span>
+            <input [type]="showPassword ? 'text' : 'password'" [(ngModel)]="registerPassword" placeholder="••••••••"
+              class="form-input pr-12" />
+            <button (click)="showPassword = !showPassword" class="input-action-btn">
+              <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="errorMessage" class="alert-error">{{ errorMessage }}</div>
+        <div *ngIf="successMessage" class="alert-success">{{ successMessage }}</div>
+
+        <button (click)="register()" [disabled]="isLoading" class="btn-primary">
+          <span *ngIf="!isLoading">Create Account →</span>
+          <span *ngIf="isLoading" class="spinner-wrap">
+            <ion-spinner name="crescent"></ion-spinner>
+            Creating account...
+          </span>
+        </button>
+
+      </div>
+    </div>
+
+    <p class="page-footer">SmartDrive Tracking System v1.0</p>
+
+  </div>
 </ion-content>
