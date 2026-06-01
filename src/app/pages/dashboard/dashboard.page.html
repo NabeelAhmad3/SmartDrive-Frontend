@@ -110,7 +110,7 @@
       <p class="list-item-subtitle">No trips yet. Start your first trip!</p>
     </div>
 
-    <div *ngFor="let trip of recentTrips" class="list-item">
+    <div *ngFor="let trip of recentTrips | slice:0:3" class="list-item">
       <div class="flex items-center gap-3">
         <div class="icon-box flex-shrink-0">
           <ion-icon name="car-outline"></ion-icon>
@@ -138,5 +138,30 @@
       </div>
     </div>
 
+    <div *ngIf="overspeedAlerts.length > 0">
+      <p class="section-title mt-4">Overspeed Alerts</p>
+
+      <div *ngFor="let alert of overspeedAlerts | slice:0:3" class="list-item mb-3">
+        <div class="flex items-center gap-3">
+          <div class="icon-box flex-shrink-0" style="background:#7C2D12;color:#FCA5A5">
+            <ion-icon name="warning-outline"></ion-icon>
+          </div>
+          <div>
+            <p class="list-item-title">{{ alert.speed | number:'1.0-0' }} km/h recorded</p>
+            <p class="list-item-subtitle">
+              Limit was {{ alert.limit_set }} km/h · Trip #{{ alert.trip_id }}
+            </p>
+            <p class="list-item-subtitle">
+              {{ alert.created_at | date:'dd MMM, hh:mm a' }}
+            </p>
+          </div>
+        </div>
+        <span class="badge-danger">+{{ (alert.speed - alert.limit_set) | number:'1.0-0' }} km/h</span>
+      </div>
+
+      <p *ngIf="overspeedAlerts.length > 3" class="text-xs text-center text-[#8892A4] mt-1">
+        +{{ overspeedAlerts.length - 3 }} more alerts
+      </p>
+    </div>
   </div>
 </ion-content>

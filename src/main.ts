@@ -15,7 +15,12 @@ import {
   chevronForwardOutline,
   searchOutline,
   flagOutline,
-  phonePortraitOutline
+  phonePortraitOutline,
+  eyeOffOutline,
+  eyeOutline,
+  mailOutline,
+  lockClosedOutline,
+  carSport
 
 } from 'ionicons/icons';
 ionicPwaElements(window);
@@ -36,7 +41,7 @@ addIcons({
   cloudUploadOutline, logOutOutline,
   arrowBackOutline, personOutline,
   notificationsOutline, locationOutline, stopOutline,
-  downloadOutline,chevronForwardOutline,searchOutline,flagOutline,
-  phonePortraitOutline
+  downloadOutline, chevronForwardOutline, searchOutline, flagOutline,
+  phonePortraitOutline, eyeOffOutline, eyeOutline, mailOutline, lockClosedOutline,carSport
 
 });

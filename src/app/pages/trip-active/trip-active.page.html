@@ -1,13 +1,110 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>trip-active</ion-title>
+<ion-header class="ion-no-border">
+  <ion-toolbar class="trip-toolbar">
+    <div class="flex items-center justify-between px-4 py-2">
+      <button (click)="goBack()" class="icon-box">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </button>
+      <div class="text-center">
+        <p class="list-item-subtitle">Trip #{{ currentTripId }}</p>
+        <p class="list-item-title">{{ tripStatus }}</p>
+      </div>
+      <div [class]="isTracking ? 'badge-success' : 'badge-warning'">
+        {{ isTracking ? 'Live' : 'Paused' }}
+      </div>
+    </div>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">trip-active</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="trip-content" [fullscreen]="true">
+  <div class="pb-32">
+    <div id="map" class="trip-map"></div>
+
+    <div class="px-4 mt-[-20px] relative z-10">
+      <div class="card mb-4">
+        <div class="text-center mb-4">
+          <div class="speedometer-ring mx-auto mb-2" [class.overspeed]="isOverspeed">
+            <div class="speedometer-inner">
+              <p class="speedometer-value">{{ currentSpeed }}</p>
+              <p class="speedometer-unit">km/h</p>
+            </div>
+          </div>
+          <div *ngIf="isOverspeed" class="alert-error spinner-wrap mt-2">
+            <ion-icon name="warning-outline"></ion-icon>
+            Speed limit exceeded! ({{ speedLimit }} km/h)
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mb-4">
+          <div class="stat-card text-center">
+            <p class="text-lg font-bold text-white">{{ tripDistance }}</p>
+            <p class="list-item-subtitle">km</p>
+            <p class="list-item-subtitle">Distance</p>
+          </div>
+          <div class="stat-card text-center">
+            <p class="text-lg font-bold text-white">{{ tripDuration }}</p>
+            <p class="list-item-subtitle">Duration</p>
+          </div>
+          <div class="stat-card text-center">
+            <p class="text-lg font-bold text-white">{{ maxSpeed }}</p>
+            <p class="list-item-subtitle">km/h</p>
+            <p class="list-item-subtitle">Max Speed</p>
+          </div>
+        </div>
+        <div class="list-item mb-3">
+          <div class="flex items-center gap-2">
+            <ion-icon name="location-outline" class="text-[#00D4FF]"></ion-icon>
+            <p class="list-item-subtitle">Current Location</p>
+          </div>
+          <p class="text-xs text-white font-mono">
+            {{ currentLat | number:'1.4-4' }}, {{ currentLng | number:'1.4-4' }}
+          </p>
+        </div>
+        <div class="list-item">
+          <div class="flex items-center gap-2">
+            <ion-icon name="time-outline" class="text-[#00D4FF]"></ion-icon>
+            <p class="list-item-subtitle">Started</p>
+          </div>
+          <p class="text-xs text-white">{{ tripStartTime | date:'hh:mm a' }}</p>
+        </div>
+
+      </div>
+      <div *ngIf="!isTracking && !currentTripId" class="mb-4">
+        <button (click)="startTrip()" [disabled]="isLoading" class="btn-primary">
+          <span *ngIf="!isLoading" class="spinner-wrap">
+            <ion-icon name="play-outline"></ion-icon>
+            Start Trip
+          </span>
+          <span *ngIf="isLoading" class="spinner-wrap">
+            <ion-spinner name="crescent"></ion-spinner>
+            Starting...
+          </span>
+        </button>
+      </div>
+      <div *ngIf="isTracking" class="mb-4">
+        <button (click)="endTrip()" [disabled]="isLoading" class="btn-danger">
+          <span *ngIf="!isLoading" class="spinner-wrap">
+            <ion-icon name="stop-outline"></ion-icon>
+            End Trip
+          </span>
+          <span *ngIf="isLoading" class="spinner-wrap">
+            <ion-spinner name="crescent"></ion-spinner>
+            Ending...
+          </span>
+        </button>
+      </div>
+      <div class="card-sm">
+        <div class="flex items-center justify-between mb-2">
+          <p class="section-title mb-0">Speed Limit Alert</p>
+          <span class="badge-info">{{ speedLimit }} km/h</span>
+        </div>
+        <input type="range" [(ngModel)]="speedLimit" min="30" max="160" step="10" class="speed-slider w-full" />
+        <div class="flex justify-between mt-1">
+          <span class="list-item-subtitle">30</span>
+          <span class="list-item-subtitle">80</span>
+          <span class="list-item-subtitle">120</span>
+          <span class="list-item-subtitle">160</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
 </ion-content>

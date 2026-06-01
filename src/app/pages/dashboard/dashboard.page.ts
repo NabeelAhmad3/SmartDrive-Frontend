@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, SlicePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import {
   IonContent, IonHeader, IonToolbar,
-  IonIcon, IonSpinner
+  IonIcon, IonSpinner,
 } from '@ionic/angular/standalone';
 import { AuthService } from 'src/app/services/auth';
 import { TripService } from 'src/app/services/trip';
@@ -14,7 +14,7 @@ import { DatabaseService } from 'src/app/services/database';
   selector: 'app-dashboard',
   templateUrl: './dashboard.page.html',
   standalone: true,
-  imports: [CommonModule, IonContent, IonHeader, IonToolbar, IonIcon, IonSpinner]
+  imports: [CommonModule, IonContent, IonHeader, IonToolbar, IonIcon, IonSpinner, SlicePipe]
 })
 export class DashboardPage implements OnInit {
 
@@ -23,13 +23,11 @@ export class DashboardPage implements OnInit {
   activeTrip: any = null;
   activeTripDuration = '00:00';
   isStartingTrip = false;
-
   totalTrips = 0;
   totalDistance = '0.0';
   avgSpeed = '0';
   overspeedCount = 0;
   unsyncedCount = 0;
-
   recentTrips: any[] = [];
 
   private durationInterval: any;
@@ -49,6 +47,8 @@ export class DashboardPage implements OnInit {
     this.checkSyncStatus();
   }
 
+  overspeedAlerts: any[] = [];
+
   async loadDashboard() {
     try {
       const stats = await this.tripService.getStats();
@@ -57,6 +57,7 @@ export class DashboardPage implements OnInit {
       this.avgSpeed = Math.round(stats.avgSpeed || 0).toString();
       this.overspeedCount = stats.overspeedCount || 0;
       this.recentTrips = await this.tripService.getRecentTrips(5);
+      this.overspeedAlerts = await this.tripService.getOverspeedAlerts();
       this.activeTrip = this.recentTrips.find(t => t.status === 'active') || null;
       if (this.activeTrip) this.startDurationTimer();
     } catch (e) {
