@@ -5,6 +5,7 @@ export const routes: Routes = [
   {
     path: 'dashboard',
     loadComponent: () => import('./pages/dashboard/dashboard.page').then((m) => m.DashboardPage),
+    canActivate: [authGuard]
   },
   {
     path: '',
@@ -35,4 +36,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/settings/settings.page').then(m => m.SettingsPage),
     canActivate: [authGuard]
   },
+  {
+    path: 'admin-dashboard',
+    loadComponent: () => import('./pages/Admin/admin-dashboard/admin-dashboard.page').then(m => m.AdminDashboardPage),
+    canActivate: [authGuard]
+  },
+
 ];

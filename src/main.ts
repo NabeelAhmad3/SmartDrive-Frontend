@@ -7,20 +7,14 @@ import { provideHttpClient } from '@angular/common/http';
 import { defineCustomElements as ionicPwaElements } from '@ionic/pwa-elements/loader';
 import { addIcons } from 'ionicons';
 import {
-  carOutline, cloudUploadOutline, logOutOutline, mapOutline, navigateOutline, playCircleOutline, playOutline, settingsOutline, speedometerOutline, timeOutline, warningOutline,
-  personOutline,
-  notificationsOutline,
-  arrowBackOutline, locationOutline, stopOutline,
-  downloadOutline,
-  chevronForwardOutline,
-  searchOutline,
-  flagOutline,
-  phonePortraitOutline,
-  eyeOffOutline,
-  eyeOutline,
-  mailOutline,
-  lockClosedOutline,
-  carSport
+  carOutline, cloudUploadOutline, logOutOutline, mapOutline, navigateOutline, playCircleOutline, playOutline,
+  personOutline, notificationsOutline, arrowBackOutline, locationOutline, stopOutline, downloadOutline,
+  chevronForwardOutline, searchOutline, flagOutline, phonePortraitOutline, eyeOffOutline, settingsOutline,
+  eyeOutline, mailOutline, lockClosedOutline, carSport, barChartOutline, peopleOutline, shieldCheckmarkOutline,
+  speedometerOutline, timeOutline, warningOutline,
+  analyticsOutline,
+  pulseOutline,
+  carSportOutline,
 
 } from 'ionicons/icons';
 ionicPwaElements(window);
@@ -37,11 +31,11 @@ bootstrapApplication(AppComponent, {
 addIcons({
   carOutline, navigateOutline, speedometerOutline,
   warningOutline, playCircleOutline, playOutline,
-  timeOutline, mapOutline, settingsOutline,
-  cloudUploadOutline, logOutOutline,
-  arrowBackOutline, personOutline,
-  notificationsOutline, locationOutline, stopOutline,
-  downloadOutline, chevronForwardOutline, searchOutline, flagOutline,
-  phonePortraitOutline, eyeOffOutline, eyeOutline, mailOutline, lockClosedOutline,carSport
+  timeOutline, mapOutline, settingsOutline, cloudUploadOutline,
+  logOutOutline, arrowBackOutline, personOutline, notificationsOutline,
+  locationOutline, stopOutline, downloadOutline, chevronForwardOutline,
+  searchOutline, flagOutline, phonePortraitOutline, eyeOffOutline, eyeOutline,
+  mailOutline, lockClosedOutline, carSport, shieldCheckmarkOutline, peopleOutline,
+  barChartOutline, pulseOutline, analyticsOutline, carSportOutline
 
 });

@@ -359,3 +359,110 @@ ion-toolbar {
   height: 220px;
 }
 
+/* =========================
+   ADMIN DASHBOARD
+========================= */
+
+.admin-layout {
+  @apply min-h-screen flex bg-slate-100;
+}
+
+.admin-sidebar {
+  @apply w-72 bg-gradient-to-b from-[#071224] to-[#0D1730] p-6 flex flex-col;
+}
+
+.admin-logo {
+  @apply flex items-center gap-4 mb-10;
+}
+
+.admin-logo-box {
+  @apply w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-400 to-violet-500 flex items-center justify-center text-white text-2xl;
+}
+
+.admin-title {
+  @apply text-white text-xl font-bold;
+}
+
+.admin-subtitle {
+  @apply text-slate-400 text-sm;
+}
+
+.admin-menu {
+  @apply flex-1 space-y-2;
+}
+
+.admin-menu-item {
+  @apply flex items-center gap-3 p-4 rounded-xl cursor-pointer text-slate-400 transition-all duration-200;
+}
+
+.admin-menu-item-active {
+  @apply bg-cyan-500/10 text-cyan-400;
+}
+
+.admin-badge {
+  @apply ml-auto bg-blue-600 text-white text-xs px-2.5 py-1 rounded-full;
+}
+
+.admin-logout-btn {
+  @apply h-14 rounded-2xl bg-red-500/10 text-red-400 font-semibold flex items-center justify-center gap-2;
+}
+
+.admin-content {
+  @apply flex-1 p-8 overflow-y-auto;
+}
+
+.admin-page-title {
+  @apply text-3xl font-bold mb-6;
+}
+
+.stats-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5;
+}
+
+.stats-card {
+  @apply bg-white rounded-2xl p-6 shadow-sm;
+}
+
+.stats-number {
+  @apply text-3xl font-bold;
+}
+
+.stats-label {
+  @apply text-slate-500 mt-1;
+}
+
+.admin-table {
+  @apply w-full bg-white rounded-2xl overflow-hidden;
+}
+
+.admin-table th {
+  @apply bg-slate-50 text-left p-4 font-semibold;
+}
+
+.admin-table td {
+  @apply p-4 border-t border-slate-200;
+}
+
+.badge-active {
+  @apply bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium;
+}
+
+.badge-inactive {
+  @apply bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-medium;
+}
+
+.badge-danger {
+  @apply bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-semibold;
+}
+
+.btn-primary {
+  @apply bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-all;
+}
+
+.empty-card {
+  @apply bg-white rounded-2xl p-10 text-center;
+}
+
+.loading-wrapper {
+  @apply flex flex-col items-center justify-center mt-12 gap-3;
+}

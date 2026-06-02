@@ -46,7 +46,13 @@ export class LoginPage {
 
     try {
       await this.authService.login(this.loginEmail, this.loginPassword);
-      this.router.navigateByUrl('/dashboard', { replaceUrl: true });
+      const user = this.authService.getUser();
+
+      if (user?.role === 'admin') {
+        this.router.navigateByUrl('/admin-dashboard', { replaceUrl: true });
+      } else {
+        this.router.navigateByUrl('/dashboard', { replaceUrl: true });
+      }
     } catch (error: any) {
       this.errorMessage = error?.error?.error || 'Login failed. Please try again.';
     } finally {
