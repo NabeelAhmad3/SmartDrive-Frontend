@@ -1,0 +1,74 @@
+<div *ngIf="isLoading" class="loading-wrapper">
+  <ion-spinner></ion-spinner>
+  <p>Loading analytics...</p>
+</div>
+
+<div *ngIf="!isLoading">
+  <div class="charts-row mb-6">
+
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <p class="chart-title">Trips Per Day</p>
+          <p class="chart-subtitle">Daily trip frequency</p>
+        </div>
+        <div class="chart-icon-box cyan">
+          <ion-icon name="bar-chart-outline"></ion-icon>
+        </div>
+      </div>
+      <div class="chart-body">
+        <canvas #tripsChart></canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <p class="chart-title">Distance Trend</p>
+          <p class="chart-subtitle">Total km driven per day</p>
+        </div>
+        <div class="chart-icon-box purple">
+          <ion-icon name="navigate-outline"></ion-icon>
+        </div>
+      </div>
+      <div class="chart-body">
+        <canvas #distanceChart></canvas>
+      </div>
+    </div>
+
+  </div>
+  <div class="charts-row">
+
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <p class="chart-title">Average Speed</p>
+          <p class="chart-subtitle">vs 80 km/h speed limit</p>
+        </div>
+        <div class="chart-icon-box green">
+          <ion-icon name="speedometer-outline"></ion-icon>
+        </div>
+      </div>
+      <div class="chart-body">
+        <canvas #speedChart></canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <p class="chart-title">Trips by Driver</p>
+          <p class="chart-subtitle">Distribution across fleet</p>
+        </div>
+        <div class="chart-icon-box amber">
+          <ion-icon name="people-outline"></ion-icon>
+        </div>
+      </div>
+      <div class="chart-body chart-body-sm">
+        <canvas #driverChart></canvas>
+      </div>
+    </div>
+
+  </div>
+
+</div>

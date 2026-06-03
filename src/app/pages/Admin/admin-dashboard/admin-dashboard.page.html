@@ -29,6 +29,7 @@
           {{ totalTrips }}
         </span>
       </li>
+      
       <li class="admin-menu-item" [class.admin-menu-item-active]="activeTab === 'alerts'" (click)="setTab('alerts')">
         <ion-icon name="warning-outline"></ion-icon>
         <span>Speed Alerts</span>
@@ -50,38 +51,35 @@
       </h1>
       <div class="stats-grid">
         <div class="stats-card">
-          <h2 class="stats-number">
-            {{ totalDrivers }}
-          </h2>
-          <p class="stats-label">
-            Total Drivers
-          </p>
+          <div class="stats-icon">
+            <ion-icon name="people-outline"></ion-icon>
+          </div>
+          <h2 class="stats-number">{{ totalDrivers }}</h2>
+          <p class="stats-label">Total Drivers</p>
         </div>
         <div class="stats-card">
-          <h2 class="stats-number">
-            {{ totalTrips }}
-          </h2>
-          <p class="stats-label">
-            Total Trips
-          </p>
+          <div class="stats-icon">
+            <ion-icon name="car-outline"></ion-icon>
+          </div>
+          <h2 class="stats-number">{{ totalTrips }}</h2>
+          <p class="stats-label">Total Trips</p>
         </div>
         <div class="stats-card">
-          <h2 class="stats-number">
-            {{ totalDistance }}
-          </h2>
-          <p class="stats-label">
-            Total Distance (KM)
-          </p>
+          <div class="stats-icon">
+            <ion-icon name="warning-outline"></ion-icon>
+          </div>
+          <h2 class="stats-number">{{ totalAlerts }}</h2>
+          <p class="stats-label">Speed Violations</p>
         </div>
         <div class="stats-card">
-          <h2 class="stats-number">
-            {{ activeTrips }}
-          </h2>
-          <p class="stats-label">
-            Active Trips
-          </p>
+          <div class="stats-icon">
+            <ion-icon name="pulse-outline"></ion-icon>
+          </div>
+          <h2 class="stats-number">{{ activeTrips }}</h2>
+          <p class="stats-label">Active Trips</p>
         </div>
       </div>
+      <app-admin-analytics></app-admin-analytics>
     </div>
     <div *ngIf="activeTab === 'drivers'">
       <h1 class="admin-page-title">
@@ -106,7 +104,7 @@
               </span>
             </td>
             <td>
-              <button class="btn-primary" (click)="toggleDriver(driver)">
+              <button [class]="driver.is_active ? 'btn-danger-sm' : 'btn-success-sm'" (click)="toggleDriver(driver)">
                 {{ driver.is_active ? 'Deactivate' : 'Activate' }}
               </button>
             </td>
@@ -115,67 +113,83 @@
       </table>
     </div>
     <div *ngIf="activeTab === 'trips'">
-      <h1 class="admin-page-title">
-        Trips
-      </h1>
-      <table class="admin-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Driver</th>
-            <th>Status</th>
-            <th>Distance</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let trip of recentTrips">
-            <td>{{ trip.id }}</td>
-            <td>{{ trip.driver_name }}</td>
-            <td>{{ trip.status }}</td>
-            <td>{{ trip.total_distance }} KM</td>
-          </tr>
-        </tbody>
-      </table>
+      <h1 class="admin-page-title">Trips</h1>
+      <div class="table-wrapper">
+        <div class="table-header">
+          <p class="table-title">All Trips</p>
+          <span class="badge-completed">{{ totalTrips }} total</span>
+        </div>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Driver</th>
+              <th>Status</th>
+              <th>Distance</th>
+              <th>Max Speed</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let trip of recentTrips">
+              <td>#{{ trip.id }}</td>
+              <td class="font-semibold">{{ trip.driver_name }}</td>
+              <td>
+                <span [class]="trip.status === 'completed'
+              ? 'badge-completed' : 'badge-in-progress'">
+                  {{ trip.status }}
+                </span>
+              </td>
+              <td>{{ trip.total_distance | number:'1.1-1' }} km</td>
+              <td>{{ trip.max_speed | number:'1.0-0' }} km/h</td>
+              <td>{{ trip.start_time | date:'dd MMM, hh:mm a' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
     <div *ngIf="activeTab === 'alerts'">
-      <h1 class="admin-page-title">
-        Speed Alerts
-      </h1>
-      <table *ngIf="speedAlerts.length" class="admin-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Driver</th>
-            <th>Speed</th>
-            <th>Limit</th>
-            <th>Trip</th>
-            <th>Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let alert of speedAlerts">
-            <td>{{ alert.id }}</td>
-            <td>{{ alert.driver_name }}</td>
-            <td>
-              <span class="badge-danger">
-                {{ alert.speed }}
-                km/h
-              </span>
-            </td>
-            <td>
-              {{ alert.speed_limit }} km/h
-            </td>
-            <td>
-              #{{ alert.trip_id }}
-            </td>
-            <td>
-              {{ alert.created_at | date:'dd MMM yyyy hh:mm a' }}
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <h1 class="admin-page-title">Speed Alerts</h1>
+      <div class="table-wrapper" *ngIf="speedAlerts.length">
+        <div class="table-header">
+          <p class="table-title">Overspeed Events</p>
+          <span class="badge-danger">{{ speedAlerts.length }} alerts</span>
+        </div>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Driver</th>
+              <th>Speed Recorded</th>
+              <th>Speed Limit</th>
+              <th>Over By</th>
+              <th>Trip</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let alert of speedAlerts" class="alert-row-danger">
+              <td class="font-semibold">{{ alert.driver_name }}</td>
+              <td>
+                <span class="speed-pill">
+                  <ion-icon name="warning-outline"></ion-icon>
+                  {{ alert.speed }} km/h
+                </span>
+              </td>
+              <td class="text-slate-500">{{ alert.limit_set }} km/h</td>
+              <td>
+                <span class="over-limit-pill">
+                  +{{ alert.speed - alert.limit_set }} km/h
+                </span>
+              </td>
+              <td>#{{ alert.trip_id }}</td>
+              <td>{{ alert.created_at | date:'dd MMM, hh:mm a' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
       <div *ngIf="!speedAlerts.length" class="empty-card">
-        No speed alerts found.
+        <ion-icon name="checkmark-circle-outline" class="text-4xl text-emerald-400"></ion-icon>
+        <p>No speed alerts found</p>
       </div>
     </div>
   </main>

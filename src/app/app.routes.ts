@@ -40,6 +40,10 @@ export const routes: Routes = [
     path: 'admin-dashboard',
     loadComponent: () => import('./pages/Admin/admin-dashboard/admin-dashboard.page').then(m => m.AdminDashboardPage),
     canActivate: [authGuard]
+  },  {
+    path: 'admin-analytics',
+    loadComponent: () => import('./pages/Admin/admin-analytics/admin-analytics.page').then( m => m.AdminAnalyticsPage)
   },
+
 
 ];

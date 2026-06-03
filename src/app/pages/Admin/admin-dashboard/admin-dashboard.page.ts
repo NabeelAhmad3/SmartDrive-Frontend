@@ -4,10 +4,11 @@ import { Router } from '@angular/router';
 import { IonIcon, IonSpinner } from '@ionic/angular/standalone';
 import { AuthService } from 'src/app/services/auth';
 import { Admin } from 'src/app/services/admin';
+import { AdminAnalyticsPage } from "../admin-analytics/admin-analytics.page";
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, IonIcon, IonSpinner],
+  imports: [CommonModule, IonIcon, IonSpinner, AdminAnalyticsPage],
   templateUrl: './admin-dashboard.page.html',
   styleUrls: ['./admin-dashboard.page.scss']
 })
@@ -20,6 +21,9 @@ export class AdminDashboardPage implements OnInit {
   totalTrips = 0;
   totalDistance = '0';
   totalAlerts = 0;
+  
+  alerts: any[] = [];
+  alertCount = 0;
   activeTrips = 0;
   drivers: any[] = [];
   recentTrips: any[] = [];

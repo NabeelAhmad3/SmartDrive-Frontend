@@ -15,6 +15,7 @@ import {
   analyticsOutline,
   pulseOutline,
   carSportOutline,
+  trendingUpOutline,
 
 } from 'ionicons/icons';
 ionicPwaElements(window);
@@ -36,6 +37,6 @@ addIcons({
   locationOutline, stopOutline, downloadOutline, chevronForwardOutline,
   searchOutline, flagOutline, phonePortraitOutline, eyeOffOutline, eyeOutline,
   mailOutline, lockClosedOutline, carSport, shieldCheckmarkOutline, peopleOutline,
-  barChartOutline, pulseOutline, analyticsOutline, carSportOutline
+  barChartOutline, pulseOutline, analyticsOutline, carSportOutline, trendingUpOutline,
 
 });
