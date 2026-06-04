@@ -28,10 +28,19 @@
             ],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
+            "allowedCommonJsDependencies": [
+              "leaflet",
+              "chart.js"
+            ],
             "assets": [
               {
                 "glob": "**/*",
                 "input": "src/assets",
+                "output": "assets"
+              },
+              {
+                "glob": "sql-wasm.wasm",
+                "input": "node_modules/sql.js/dist",
                 "output": "assets"
               }
             ],

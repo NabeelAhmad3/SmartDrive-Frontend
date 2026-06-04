@@ -1,5 +1,5 @@
 {
-  "name": "SmartDriveTracking",
+  "name": "Smart-Drive-Tracking",
   "version": "0.0.1",
   "author": "Ionic Framework",
   "homepage": "https://ionicframework.com/",
@@ -21,7 +21,6 @@
     "@angular/platform-browser": "^20.0.0",
     "@angular/platform-browser-dynamic": "^20.0.0",
     "@angular/router": "^20.0.0",
-    "@capacitor-community/http": "^1.4.1",
     "@capacitor-community/sqlite": "^8.1.0",
     "@capacitor/android": "^8.3.4",
     "@capacitor/app": "^8.1.0",

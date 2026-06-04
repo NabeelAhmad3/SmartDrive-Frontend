@@ -1,20 +1,15 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './guards/auth.guard';
+import { adminGuard, authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   {
-    path: 'dashboard',
-    loadComponent: () => import('./pages/dashboard/dashboard.page').then((m) => m.DashboardPage),
-    canActivate: [authGuard]
+    path: 'login',
+    loadComponent: () => import('./pages/login/login.page').then((m) => m.LoginPage)
   },
   {
     path: '',
-    redirectTo: 'dashboard',
+    redirectTo: 'login',
     pathMatch: 'full',
-  },
-  {
-    path: 'login',
-    loadComponent: () => import('./pages/login/login.page').then(m => m.LoginPage)
   },
   {
     path: 'dashboard',
@@ -39,11 +34,12 @@ export const routes: Routes = [
   {
     path: 'admin-dashboard',
     loadComponent: () => import('./pages/Admin/admin-dashboard/admin-dashboard.page').then(m => m.AdminDashboardPage),
-    canActivate: [authGuard]
-  },  {
-    path: 'admin-analytics',
-    loadComponent: () => import('./pages/Admin/admin-analytics/admin-analytics.page').then( m => m.AdminAnalyticsPage)
+    canActivate: [adminGuard]
   },
-
+  {
+    path: 'admin-analytics',
+    loadComponent: () => import('./pages/Admin/admin-analytics/admin-analytics.page').then(m => m.AdminAnalyticsPage),
+    canActivate: [adminGuard]
+  },
 
 ];

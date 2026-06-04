@@ -5,10 +5,10 @@ import { DatabaseService } from './database';
 
 @Injectable({ providedIn: 'root' })
 export class SyncService {
-  private API = 'https://your-backend.com/api';
+  private API = 'http://192.168.43.157:3000/api';
 
   constructor(private db: DatabaseService,
-              private http: HttpClient) {}
+    private http: HttpClient) { }
 
   async startListening() {
     Network.addListener('networkStatusChange', async (status) => {

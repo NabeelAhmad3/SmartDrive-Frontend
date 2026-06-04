@@ -6,18 +6,15 @@ import { AppComponent } from './app/app.component';
 import { provideHttpClient } from '@angular/common/http';
 import { defineCustomElements as ionicPwaElements } from '@ionic/pwa-elements/loader';
 import { addIcons } from 'ionicons';
+import { IonicModule } from '@ionic/angular';
 import {
   carOutline, cloudUploadOutline, logOutOutline, mapOutline, navigateOutline, playCircleOutline, playOutline,
   personOutline, notificationsOutline, arrowBackOutline, locationOutline, stopOutline, downloadOutline,
   chevronForwardOutline, searchOutline, flagOutline, phonePortraitOutline, eyeOffOutline, settingsOutline,
   eyeOutline, mailOutline, lockClosedOutline, carSport, barChartOutline, peopleOutline, shieldCheckmarkOutline,
-  speedometerOutline, timeOutline, warningOutline,
-  analyticsOutline,
-  pulseOutline,
-  carSportOutline,
-  trendingUpOutline,
-
+  speedometerOutline, timeOutline, warningOutline, analyticsOutline, pulseOutline, carSportOutline, trendingUpOutline,
 } from 'ionicons/icons';
+import { importProvidersFrom } from '@angular/core';
 ionicPwaElements(window);
 
 bootstrapApplication(AppComponent, {
@@ -26,6 +23,7 @@ bootstrapApplication(AppComponent, {
     provideIonicAngular(),
     provideRouter(routes, withPreloading(PreloadAllModules)),
     provideHttpClient(),
+    importProvidersFrom(IonicModule.forRoot()),
   ],
 });
 
