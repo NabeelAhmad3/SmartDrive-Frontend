@@ -2,15 +2,13 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule, DecimalPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import {
-  IonContent, IonHeader, IonToolbar,
-  IonIcon, IonSpinner
-} from '@ionic/angular/standalone';
+import { IonContent, IonHeader, IonToolbar, IonIcon, IonSpinner } from '@ionic/angular/standalone';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import * as L from 'leaflet';
 import { GpsService } from 'src/app/services/gps';
 import { TripService } from 'src/app/services/trip';
 import { DatabaseService } from 'src/app/services/database';
+import { NotificationService } from 'src/app/services/notification-service';
 
 @Component({
   selector: 'app-trip-active',
@@ -42,15 +40,25 @@ export class TripActivePage implements OnInit, OnDestroy {
   private routePoints: L.LatLng[] = [];
   private durationInterval: any;
   private gpsSubscription: any;
+  private lastNotificationTime = 0;
+  private notificationCooldown = 30000;
+
   constructor(
     private gps: GpsService,
     private tripService: TripService,
     private db: DatabaseService,
-    private router: Router
-  ) { }
+    private router: Router,
+    private notifications: NotificationService,
+  ) {
+    const settings = localStorage.getItem('smartdrive_settings');
+    if (settings) {
+      this.speedLimit = JSON.parse(settings).speedLimit ?? 80;
+    }
+  }
 
-  ngOnInit() {
-    setTimeout(() => this.initMap(), 300);
+  async ngOnInit() {
+    await this.notifications.requestPermission();
+    setTimeout(() => this.initMap(), 300)
   }
 
   initMap() {
@@ -71,6 +79,8 @@ export class TripActivePage implements OnInit, OnDestroy {
       this.tripStatus = 'In Progress';
       this.startDurationTimer();
       await this.startGpsTracking();
+
+      await this.notifications.sendTripStarted(trip.id);
     } catch (e) {
       console.error('Start trip error:', e);
     } finally {
@@ -130,11 +140,18 @@ export class TripActivePage implements OnInit, OnDestroy {
     this.tripDistance = (total / 1000).toFixed(2);
   }
 
-  checkSpeedLimit(speed: number) {
+  async checkSpeedLimit(speed: number) {
     const wasOverspeed = this.isOverspeed;
     this.isOverspeed = speed > this.speedLimit;
-    if (this.isOverspeed && !wasOverspeed) {
+
+    if (this.isOverspeed) {
       Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => { });
+
+      const now = Date.now();
+      if (now - this.lastNotificationTime > this.notificationCooldown) {
+        this.lastNotificationTime = now;
+        await this.notifications.sendOverspeedAlert(speed, this.speedLimit);
+      }
     }
   }
 
@@ -162,6 +179,7 @@ export class TripActivePage implements OnInit, OnDestroy {
         avgSpeed
       });
 
+      await this.notifications.sendTripEnded(this.tripDistance, this.tripDuration);
       await this.gps.stopTracking();
       this.isTracking = false;
       this.tripStatus = 'Completed';
