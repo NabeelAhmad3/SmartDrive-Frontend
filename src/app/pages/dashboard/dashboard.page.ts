@@ -9,6 +9,7 @@ import { AuthService } from 'src/app/services/auth';
 import { TripService } from 'src/app/services/trip';
 import { SyncService } from 'src/app/services/sync';
 import { DatabaseService } from 'src/app/services/database';
+import { BackgroundGpsService } from 'src/app/services/background-gps-service';
 
 @Component({
   selector: 'app-dashboard',
@@ -37,7 +38,8 @@ export class DashboardPage implements OnInit {
     private tripService: TripService,
     private sync: SyncService,
     private db: DatabaseService,
-    private router: Router
+    private router: Router,
+    private bgGps: BackgroundGpsService
   ) { }
 
   async ngOnInit() {
@@ -45,6 +47,17 @@ export class DashboardPage implements OnInit {
     this.driverName = user?.name || 'Driver';
     await this.loadDashboard();
     this.checkSyncStatus();
+
+    if (this.bgGps.isTracking) {
+      this.activeTrip = this.recentTrips.find(t => t.status === 'active') || null;
+      if (this.activeTrip) this.startDurationTimer();
+    }
+
+    this.bgGps.currentSpeed$.subscribe(speed => {
+      if (speed > 0 && this.activeTrip) {
+        this.syncStatus = `Live: ${speed} km/h`;
+      }
+    });
   }
 
   overspeedAlerts: any[] = [];
