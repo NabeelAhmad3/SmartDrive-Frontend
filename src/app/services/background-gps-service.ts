@@ -1,8 +1,10 @@
 import { Injectable, NgZone } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
-import { BehaviorSubject } from 'rxjs';
-import { DatabaseService } from './database';
+import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import { NotificationService } from './notification-service';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { AuthService } from './auth';
+import { environment } from 'src/environments/environment.prod';
 
 @Injectable({ providedIn: 'root' })
 export class BackgroundGpsService {
@@ -18,16 +20,22 @@ export class BackgroundGpsService {
   private speedLimit = 80;
   private lastNotificationTime = 0;
   private readonly NOTIFICATION_COOLDOWN = 30000;
-  private foregroundServiceStarted = false;
 
   constructor(
-    private db: DatabaseService,
     private notifications: NotificationService,
-    private zone: NgZone
-  ) {}
+    private zone: NgZone,
+    private http: HttpClient,
+    private auth: AuthService
+  ) { }
+  private headers() {
+    return new HttpHeaders({
+      Authorization: `Bearer ${this.auth.getToken()}`
+    });
+  }
   async startTracking(tripId: number, speedLimit: number): Promise<void> {
     this.currentTripId = tripId;
-    this.speedLimit    = speedLimit;
+    this.speedLimit = speedLimit;
+    console.log('Starting tracking for trip ID:', tripId);
 
     if (this.isNative) {
       await this.startNativeTracking();
@@ -38,6 +46,7 @@ export class BackgroundGpsService {
     this.isTracking$.next(true);
     console.log(`Background GPS started for trip #${tripId}`);
   }
+
   private async startNativeTracking(): Promise<void> {
     try {
       const { Geolocation } = await import('@capacitor/geolocation');
@@ -46,108 +55,78 @@ export class BackgroundGpsService {
         console.error('Location permission denied');
         return;
       }
-      await this.startForegroundNotification();
+
       this.watchId = await Geolocation.watchPosition(
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-        },
+        { enableHighAccuracy: true, timeout: 10000 },
         (position, err) => {
-          if (err) {
-            console.error('GPS error:', err);
-            return;
-          }
-          if (!position) return;
-
-          this.zone.run(async () => {
-            const lat     = position.coords.latitude;
-            const lng     = position.coords.longitude;
-            const speedMs = position.coords.speed ?? 0;
-            const speedKmh = Math.max(0, Math.round(speedMs * 3.6));
-
-            this.currentPosition$.next({ lat, lng });
-            this.currentSpeed$.next(speedKmh);
-            if (this.currentTripId) {
-              await this.db.insertGpsPoint(
-                this.currentTripId, lat, lng, speedKmh
-              );
-            }
-            await this.checkOverspeed(speedKmh);
-          });
+          if (err || !position) return;
+          this.zone.run(() => this.handlePosition(
+            position.coords.latitude,
+            position.coords.longitude,
+            position.coords.speed ?? 0
+          ));
         }
       );
-
     } catch (e) {
       console.error('Native tracking error:', e);
     }
   }
+
   private startBrowserTracking(): void {
-    if (!navigator.geolocation) return;
+    if (!navigator.geolocation) {
+      console.error('Geolocation not supported');
+      return;
+    }
 
     this.browserWatchId = navigator.geolocation.watchPosition(
-      async (position) => {
-        const lat      = position.coords.latitude;
-        const lng      = position.coords.longitude;
-        const speedMs  = position.coords.speed ?? 0;
-        const speedKmh = Math.max(0, Math.round(speedMs * 3.6));
-
-        this.currentPosition$.next({ lat, lng });
-        this.currentSpeed$.next(speedKmh);
-
-        if (this.currentTripId) {
-          await this.db.insertGpsPoint(
-            this.currentTripId, lat, lng, speedKmh
-          );
-        }
-
-        await this.checkOverspeed(speedKmh);
+      (position) => {
+        this.handlePosition(
+          position.coords.latitude,
+          position.coords.longitude,
+          position.coords.speed ?? 0
+        );
       },
-      (err) => console.error('Browser GPS error:', err),
+      (err) => console.error('Browser GPS error:', err.code, err.message),
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
   }
-  private async startForegroundNotification(): Promise<void> {
-    if (this.foregroundServiceStarted) return;
+  private async saveGpsPoint(tripId: number, lat: number, lng: number, speed: number) {
     try {
-      const { LocalNotifications } = await import('@capacitor/local-notifications');
-      await LocalNotifications.schedule({
-        notifications: [{
-          id: 999999,
-          title: 'SmartDrive Tracking Active',
-          body:  'GPS tracking is running. Your trip is being recorded.',
-          ongoing: true,          
-          autoCancel: false,
-          schedule: { at: new Date(Date.now() + 100) },
-          smallIcon: 'ic_stat_icon_config_sample',
-        }]
-      });
-      this.foregroundServiceStarted = true;
-      console.log('Foreground notification started');
+      await firstValueFrom(
+        this.http.post(`${environment.apiUrl}/gps/point`, {
+          tripId, lat, lng, speed,
+          timestamp: Date.now()
+        }, { headers: this.headers() })
+      );
     } catch (e) {
-      console.error('Foreground notification error:', e);
+      console.error('Failed to save GPS point:', e);
     }
   }
-  private async stopForegroundNotification(): Promise<void> {
-    if (!this.foregroundServiceStarted) return;
-    try {
-      const { LocalNotifications } = await import('@capacitor/local-notifications');
-      await LocalNotifications.cancel({
-        notifications: [{ id: 999999 }]
-      });
-      this.foregroundServiceStarted = false;
-    } catch (e) {
-      console.error('Stop foreground notification error:', e);
+  private async handlePosition(lat: number, lng: number, speedMs: number) {
+    const speedKmh = Math.max(0, Math.round(speedMs * 3.6));
+
+    this.currentPosition$.next({ lat, lng });
+    this.currentSpeed$.next(speedKmh);
+
+    if (this.currentTripId) {
+      console.log(`Saving point - Trip: ${this.currentTripId}, Speed: ${speedKmh}`);
+      await this.saveGpsPoint(this.currentTripId, lat, lng, speedKmh);
+    } else {
+      console.warn('No active trip ID - point not saved');
     }
+
+    await this.checkOverspeed(speedKmh);
   }
+
   private async checkOverspeed(speed: number): Promise<void> {
     if (speed <= this.speedLimit) return;
-
     const now = Date.now();
     if (now - this.lastNotificationTime > this.NOTIFICATION_COOLDOWN) {
       this.lastNotificationTime = now;
       await this.notifications.sendOverspeedAlert(speed, this.speedLimit);
     }
   }
+
   async stopTracking(): Promise<void> {
     if (this.isNative && this.watchId) {
       const { Geolocation } = await import('@capacitor/geolocation');
@@ -160,17 +139,17 @@ export class BackgroundGpsService {
       this.browserWatchId = null;
     }
 
-    await this.stopForegroundNotification();
-
     this.currentTripId = null;
     this.isTracking$.next(false);
     this.currentSpeed$.next(0);
     this.currentPosition$.next(null);
     console.log('Background GPS stopped');
   }
+
   updateSpeedLimit(limit: number): void {
     this.speedLimit = limit;
   }
+
   get isTracking(): boolean {
     return this.isTracking$.getValue();
   }

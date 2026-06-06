@@ -6,7 +6,6 @@
         <h2 class="page-title">{{ driverName }}</h2>
       </div>
       <div class="flex items-center gap-3">
-        <div class="badge-info">{{ syncStatus }}</div>
         <button class="btn-modal-confirm" (click)="logout()">
           <ion-icon name="log-out-outline"></ion-icon>
           Sign out
@@ -99,15 +98,6 @@
           {{ trip.status }}
         </span>
         <p class="list-item-subtitle">{{ trip.avg_speed }} km/h avg</p>
-      </div>
-    </div>
-    <div *ngIf="unsyncedCount > 0" class="card-sm mt-4">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <ion-icon name="cloud-upload-outline" class="text-[#00D4FF]"></ion-icon>
-          <p class="list-item-subtitle">{{ unsyncedCount }} points pending sync</p>
-        </div>
-        <button (click)="syncNow()" class="badge-info">Sync Now</button>
       </div>
     </div>
 

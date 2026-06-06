@@ -25,7 +25,6 @@ export class SettingsPage implements OnInit {
   vibrationEnabled = true;
   soundEnabled = false;
   backgroundTracking = true;
-  autoSync = true;
 
   constructor(
     private auth: AuthService,
@@ -51,7 +50,6 @@ export class SettingsPage implements OnInit {
       this.vibrationEnabled = settings.vibrationEnabled ?? true;
       this.soundEnabled = settings.soundEnabled ?? false;
       this.backgroundTracking = settings.backgroundTracking ?? true;
-      this.autoSync = settings.autoSync ?? true;
     }
   }
 
@@ -60,8 +58,7 @@ export class SettingsPage implements OnInit {
       speedLimit: this.speedLimit,
       vibrationEnabled: this.vibrationEnabled,
       soundEnabled: this.soundEnabled,
-      backgroundTracking: this.backgroundTracking,
-      autoSync: this.autoSync,
+      backgroundTracking: this.backgroundTracking
     }));
   }
 

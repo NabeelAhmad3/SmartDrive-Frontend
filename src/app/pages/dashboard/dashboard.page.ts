@@ -4,8 +4,6 @@ import { Router } from '@angular/router';
 import { IonContent, IonHeader, IonToolbar, IonIcon, IonModal } from '@ionic/angular/standalone';
 import { AuthService } from 'src/app/services/auth';
 import { TripService } from 'src/app/services/trip';
-import { SyncService } from 'src/app/services/sync';
-import { DatabaseService } from 'src/app/services/database';
 import { BackgroundGpsService } from 'src/app/services/background-gps-service';
 
 @Component({
@@ -17,13 +15,11 @@ import { BackgroundGpsService } from 'src/app/services/background-gps-service';
 export class DashboardPage implements OnInit {
 
   driverName = '';
-  syncStatus = 'Offline';
   isStartingTrip = false;
   totalTrips = 0;
   totalDistance = '0.0';
   avgSpeed = '0';
   overspeedCount = 0;
-  unsyncedCount = 0;
   recentTrips: any[] = [];
 
   private durationInterval: any;
@@ -32,8 +28,6 @@ export class DashboardPage implements OnInit {
   constructor(
     private auth: AuthService,
     private tripService: TripService,
-    private sync: SyncService,
-    private db: DatabaseService,
     private router: Router,
     private bgGps: BackgroundGpsService
   ) { }
@@ -42,7 +36,6 @@ export class DashboardPage implements OnInit {
     const user = this.auth.getUser();
     this.driverName = user?.name || 'Driver';
     await this.loadDashboard();
-    this.checkSyncStatus();
   }
 
   overspeedAlerts: any[] = [];
@@ -61,11 +54,6 @@ export class DashboardPage implements OnInit {
     }
   }
 
-  async checkSyncStatus() {
-    const unsynced = await this.db.getUnsyncedPoints();
-    this.unsyncedCount = unsynced.length;
-    this.syncStatus = navigator.onLine ? 'Online' : 'Offline';
-  }
 
   async startTrip() {
     this.isStartingTrip = true;
@@ -85,11 +73,6 @@ export class DashboardPage implements OnInit {
 
   goTo(page: string) {
     this.router.navigateByUrl(`/${page}`);
-  }
-
-  async syncNow() {
-    await this.sync.syncNow();
-    await this.checkSyncStatus();
   }
 
   logout() {

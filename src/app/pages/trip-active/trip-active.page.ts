@@ -7,7 +7,6 @@ import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { Subscription } from 'rxjs';
 import * as L from 'leaflet';
 import { TripService } from 'src/app/services/trip';
-import { DatabaseService } from 'src/app/services/database';
 import { NotificationService } from 'src/app/services/notification-service';
 import { BackgroundGpsService } from 'src/app/services/background-gps-service';
 
@@ -48,7 +47,6 @@ export class TripActivePage implements OnInit, OnDestroy {
   constructor(
     private bgGps: BackgroundGpsService,
     private tripService: TripService,
-    private db: DatabaseService,
     private router: Router,
     private notifications: NotificationService,
   ) {
@@ -141,7 +139,6 @@ export class TripActivePage implements OnInit, OnDestroy {
     this.isOverspeed = speed > this.speedLimit;
 
     if (this.isOverspeed) {
-      Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => {});
       const now = Date.now();
       if (now - this.lastNotificationTime > this.notificationCooldown) {
         this.lastNotificationTime = now;
