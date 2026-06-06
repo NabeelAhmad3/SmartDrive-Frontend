@@ -40,6 +40,31 @@
       Sign Out
     </button>
   </aside>
+  <nav class="admin-bottom-nav">
+    <button class="admin-bottom-nav-item" [class.active]="activeTab === 'dashboard'" (click)="setTab('dashboard')">
+      <ion-icon name="bar-chart-outline"></ion-icon>
+      <span>Dashboard</span>
+    </button>
+
+    <button class="admin-bottom-nav-item" [class.active]="activeTab === 'drivers'" (click)="setTab('drivers')">
+      <ion-icon name="people-outline"></ion-icon>
+      <span>Drivers</span>
+    </button>
+
+    <button class="admin-bottom-nav-item" [class.active]="activeTab === 'trips'" (click)="setTab('trips')">
+      <ion-icon name="car-outline"></ion-icon>
+      <span>Trips</span>
+    </button>
+
+    <button class="admin-bottom-nav-item" [class.active]="activeTab === 'alerts'" (click)="setTab('alerts')">
+      <ion-icon name="warning-outline"></ion-icon>
+      <span>Alerts</span>
+    </button>
+     <button class="admin-bottom-nav-item" (click)="logout()">
+      <ion-icon name="log-out-outline"></ion-icon>
+      Sign Out
+    </button>
+  </nav>
   <main class="admin-content">
     <div *ngIf="isLoading" class="loading-wrapper">
       <ion-spinner></ion-spinner>
@@ -47,9 +72,9 @@
     </div>
     <div *ngIf="activeTab === 'dashboard' && !isLoading">
       <div class="admin-page-header">
-      <h1 class="admin-page-title">
-        Dashboard Overview
-      </h1>
+        <h1 class="admin-page-title">
+          Dashboard Overview
+        </h1>
         <button class="btn-export" (click)="exportDashboardPdf()">
           <ion-icon name="download-outline"></ion-icon>
           Export PDF
@@ -199,4 +224,28 @@
       </div>
     </div>
   </main>
+</div>
+
+<div *ngIf="showLogoutModal" class="modal-backdrop" (click)="cancelLogout()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+
+    <div class="modal-icon-row">
+      <div class="modal-icon-circle">
+        <ion-icon name="log-out-outline"></ion-icon>
+      </div>
+      <div>
+        <p class="modal-title">Sign out of SmartDrive?</p>
+        <p class="modal-subtitle">You'll need to log in again to access the admin panel.</p>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" (click)="cancelLogout()">Cancel</button>
+      <button class="btn-modal-confirm" (click)="confirmLogout()">
+        <ion-icon name="log-out-outline"></ion-icon>
+        Sign out
+      </button>
+    </div>
+
+  </div>
 </div>

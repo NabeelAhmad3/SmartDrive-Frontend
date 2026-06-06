@@ -30,6 +30,8 @@ export class AdminDashboardPage implements OnInit {
   recentTrips: any[] = [];
   speedAlerts: any[] = [];
   isExporting = false;
+  showLogoutModal = false;
+
   constructor(
     private auth: AuthService,
     private adminService: Admin,
@@ -90,11 +92,19 @@ export class AdminDashboardPage implements OnInit {
       console.error(error);
     }
   }
+
   logout() {
+    this.showLogoutModal = true;
+  }
+
+  confirmLogout() {
+    this.showLogoutModal = false;
     this.auth.logout();
-    this.router.navigateByUrl('/login', {
-      replaceUrl: true
-    });
+    this.router.navigateByUrl('/login', { replaceUrl: true });
+  }
+
+  cancelLogout() {
+    this.showLogoutModal = false;
   }
   exportDashboardPdf() {
     this.pdfExport.exportDashboard({

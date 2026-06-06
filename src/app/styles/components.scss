@@ -625,3 +625,96 @@ ion-toolbar {
 .chart-icon-box.amber {
   @apply bg-amber-50 text-amber-500;
 }
+
+// makes it a small centered sheet instead of full screen
+ion-modal.logout-modal {
+  --height: auto;
+  --max-width: 340px;
+  --border-radius: 16px;
+  --backdrop-opacity: 0.55;
+  --background: transparent;
+  align-items: center;
+}
+
+.modal-card {
+  background: #0D1730;
+  border-radius: 16px;
+  border: 0.5px solid rgba(255, 255, 255, 0.08);
+  padding: 1.75rem 1.5rem;
+}
+
+.modal-icon-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 1.5rem;
+}
+
+.modal-icon-circle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 20px;
+}
+
+.modal-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin: 0 0 4px;
+}
+
+.modal-subtitle {
+  font-size: 13px;
+  color: #8892a4;
+  margin: 0;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.btn-modal-cancel {
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: transparent;
+  color: #94a3b8;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+.btn-modal-confirm {
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: none;
+  background: #ef4444;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  ion-icon {
+    font-size: 15px;
+  }
+
+  &:hover {
+    background: #dc2626;
+  }
+}

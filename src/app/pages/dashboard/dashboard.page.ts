@@ -1,10 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, SlicePipe } from '@angular/common';
 import { Router } from '@angular/router';
-import {
-  IonContent, IonHeader, IonToolbar,
-  IonIcon, IonSpinner,
-} from '@ionic/angular/standalone';
+import { IonContent, IonHeader, IonToolbar, IonIcon, IonSpinner, IonModal } from '@ionic/angular/standalone';
 import { AuthService } from 'src/app/services/auth';
 import { TripService } from 'src/app/services/trip';
 import { SyncService } from 'src/app/services/sync';
@@ -15,7 +12,7 @@ import { BackgroundGpsService } from 'src/app/services/background-gps-service';
   selector: 'app-dashboard',
   templateUrl: './dashboard.page.html',
   standalone: true,
-  imports: [CommonModule, IonContent, IonHeader, IonToolbar, IonIcon, IonSpinner, SlicePipe]
+  imports: [CommonModule, IonContent, IonHeader, IonToolbar, IonIcon, IonSpinner, SlicePipe, IonModal]
 })
 export class DashboardPage implements OnInit {
 
@@ -32,6 +29,7 @@ export class DashboardPage implements OnInit {
   recentTrips: any[] = [];
 
   private durationInterval: any;
+  showLogoutModal = false;
 
   constructor(
     private auth: AuthService,
@@ -123,9 +121,17 @@ export class DashboardPage implements OnInit {
   }
 
   logout() {
-    clearInterval(this.durationInterval);
+    this.showLogoutModal = true;
+  }
+
+  confirmLogout() {
+    this.showLogoutModal = false;
     this.auth.logout();
     this.router.navigateByUrl('/login', { replaceUrl: true });
+  }
+
+  cancelLogout() {
+    this.showLogoutModal = false;
   }
 
   ngOnDestroy() {

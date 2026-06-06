@@ -7,8 +7,9 @@
       </div>
       <div class="flex items-center gap-3">
         <div class="badge-info">{{ syncStatus }}</div>
-        <button (click)="logout()" class="icon-box">
+        <button class="btn-modal-confirm" (click)="logout()">
           <ion-icon name="log-out-outline"></ion-icon>
+          Sign out
         </button>
       </div>
     </div>
@@ -165,3 +166,25 @@
     </div>
   </div>
 </ion-content>
+<ion-modal [isOpen]="showLogoutModal" [backdropDismiss]="true" (didDismiss)="cancelLogout()" class="logout-modal">
+  <ng-template>
+    <div class="modal-card">
+      <div class="modal-icon-row">
+        <div class="modal-icon-circle">
+          <ion-icon name="log-out-outline"></ion-icon>
+        </div>
+        <div>
+          <p class="modal-title">Sign out of SmartDrive?</p>
+          <p class="modal-subtitle">You'll need to log in again to access the app.</p>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" (click)="cancelLogout()">Cancel</button>
+        <button class="btn-modal-confirm" (click)="confirmLogout()">
+          <ion-icon name="log-out-outline"></ion-icon>
+          Sign out
+        </button>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>
