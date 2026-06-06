@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, SlicePipe } from '@angular/common';
 import { Router } from '@angular/router';
-import { IonContent, IonHeader, IonToolbar, IonIcon, IonSpinner, IonModal } from '@ionic/angular/standalone';
+import { IonContent, IonHeader, IonToolbar, IonIcon, IonModal } from '@ionic/angular/standalone';
 import { AuthService } from 'src/app/services/auth';
 import { TripService } from 'src/app/services/trip';
 import { SyncService } from 'src/app/services/sync';
@@ -12,14 +12,12 @@ import { BackgroundGpsService } from 'src/app/services/background-gps-service';
   selector: 'app-dashboard',
   templateUrl: './dashboard.page.html',
   standalone: true,
-  imports: [CommonModule, IonContent, IonHeader, IonToolbar, IonIcon, IonSpinner, SlicePipe, IonModal]
+  imports: [CommonModule, IonContent, IonHeader, IonToolbar, IonIcon, SlicePipe, IonModal]
 })
 export class DashboardPage implements OnInit {
 
   driverName = '';
   syncStatus = 'Offline';
-  activeTrip: any = null;
-  activeTripDuration = '00:00';
   isStartingTrip = false;
   totalTrips = 0;
   totalDistance = '0.0';
@@ -45,17 +43,6 @@ export class DashboardPage implements OnInit {
     this.driverName = user?.name || 'Driver';
     await this.loadDashboard();
     this.checkSyncStatus();
-
-    if (this.bgGps.isTracking) {
-      this.activeTrip = this.recentTrips.find(t => t.status === 'active') || null;
-      if (this.activeTrip) this.startDurationTimer();
-    }
-
-    this.bgGps.currentSpeed$.subscribe(speed => {
-      if (speed > 0 && this.activeTrip) {
-        this.syncStatus = `Live: ${speed} km/h`;
-      }
-    });
   }
 
   overspeedAlerts: any[] = [];
@@ -69,8 +56,6 @@ export class DashboardPage implements OnInit {
       this.overspeedCount = stats.overspeedCount || 0;
       this.recentTrips = await this.tripService.getRecentTrips(5);
       this.overspeedAlerts = await this.tripService.getOverspeedAlerts();
-      this.activeTrip = this.recentTrips.find(t => t.status === 'active') || null;
-      if (this.activeTrip) this.startDurationTimer();
     } catch (e) {
       console.error('Dashboard load error:', e);
     }
@@ -85,8 +70,6 @@ export class DashboardPage implements OnInit {
   async startTrip() {
     this.isStartingTrip = true;
     try {
-      const trip = await this.tripService.startTrip();
-      this.activeTrip = trip;
       this.router.navigateByUrl('/trip-active');
     } catch (e) {
       console.error('Start trip error:', e);
@@ -95,17 +78,6 @@ export class DashboardPage implements OnInit {
     }
   }
 
-  startDurationTimer() {
-    if (!this.activeTrip?.start_time) return;
-    this.durationInterval = setInterval(() => {
-      const start = new Date(this.activeTrip.start_time).getTime();
-      const diff = Date.now() - start;
-      const mins = Math.floor(diff / 60000);
-      const secs = Math.floor((diff % 60000) / 1000);
-      this.activeTripDuration =
-        `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-    }, 1000);
-  }
 
   goToActiveTrip() {
     this.router.navigateByUrl('/trip-active');

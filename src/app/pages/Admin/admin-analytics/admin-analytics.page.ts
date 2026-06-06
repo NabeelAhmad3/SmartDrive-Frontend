@@ -4,10 +4,21 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonIcon, IonSpinner } from '@ionic/angular/standalone';
-import { Chart, registerables } from 'chart.js';
+import { Chart, registerables, ChartConfiguration } from 'chart.js';
 import { Admin } from 'src/app/services/admin';
 
 Chart.register(...registerables);
+
+const GRID_COLOR = '#f1f5f9';
+const TICK_COLOR = '#94a3b8';
+const TICK_FONT  = { size: 11, family: 'Inter, system-ui, sans-serif' };
+
+const TOOLTIP_BASE = {
+  backgroundColor: '#1e293b',
+  titleColor: '#94a3b8',
+  bodyColor: '#f8fafc',
+  padding: 10,
+};
 
 @Component({
   selector: 'app-admin-analytics',
@@ -17,27 +28,29 @@ Chart.register(...registerables);
 })
 export class AdminAnalyticsPage implements OnInit, AfterViewInit, OnDestroy {
 
-  @ViewChild('tripsChart') tripsChartRef!: ElementRef;
+  @ViewChild('tripsChart')    tripsChartRef!:    ElementRef;
   @ViewChild('distanceChart') distanceChartRef!: ElementRef;
-  @ViewChild('speedChart') speedChartRef!: ElementRef;
-  @ViewChild('driverChart') driverChartRef!: ElementRef;
+  @ViewChild('speedChart')    speedChartRef!:    ElementRef;
+  @ViewChild('driverChart')   driverChartRef!:   ElementRef;
 
   isLoading = true;
   analytics: any[] = [];
-  drivers: any[] = [];
+  drivers:   any[] = [];
+  trips:     any[] = [];
   private charts: Chart<any>[] = [];
 
-  constructor(private adminService: Admin) { }
+  constructor(private adminService: Admin) {}
 
   async ngOnInit() {
     try {
-      const [analytics, drivers, alerts] = await Promise.all([
+      const [analytics, drivers, trips] = await Promise.all([
         this.adminService.getAnalytics(),
         this.adminService.getAllDrivers(),
-        this.adminService.getOverspeedAlerts()
+        this.adminService.getAllTrips(),
       ]);
       this.analytics = analytics.reverse();
-      this.drivers = drivers;
+      this.drivers   = drivers;
+      this.trips     = trips;
     } catch (e) {
       console.error('Analytics error:', e);
     } finally {
@@ -68,44 +81,48 @@ export class AdminAnalyticsPage implements OnInit, AfterViewInit, OnDestroy {
     );
     const data = this.analytics.map(d => parseInt(d.total_trips || 0));
 
-    const chart = new Chart(this.tripsChartRef.nativeElement, {
+    const config: ChartConfiguration<'bar'> = {
       type: 'bar',
       data: {
         labels,
         datasets: [{
           label: 'Trips',
           data,
-          backgroundColor: 'rgba(6, 182, 212, 0.7)',
+          backgroundColor: 'rgba(6, 182, 212, 0.15)',
           borderColor: '#06B6D4',
           borderWidth: 2,
-          borderRadius: 8,
+          borderRadius: 6,
           borderSkipped: false,
+          hoverBackgroundColor: 'rgba(6, 182, 212, 0.35)',
         }]
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
           legend: { display: false },
           tooltip: {
-            callbacks: {
-              label: (ctx) => ` ${ctx.parsed.y} trips`
-            }
+            ...TOOLTIP_BASE,
+            callbacks: { label: ctx => ` ${ctx.parsed.y} trips` }
           }
         },
         scales: {
           x: {
             grid: { display: false },
-            ticks: { color: '#94A3B8', font: { size: 11 } }
+            border: { display: false },
+            ticks: { color: TICK_COLOR, font: TICK_FONT }
           },
           y: {
             beginAtZero: true,
-            grid: { color: '#F1F5F9' },
-            ticks: { color: '#94A3B8', stepSize: 1, font: { size: 11 } }
+            grid: { color: GRID_COLOR },
+            border: { display: false },
+            ticks: { color: TICK_COLOR, stepSize: 1, font: TICK_FONT }
           }
         }
       }
-    });
-    this.charts.push(chart);
+    };
+
+    this.charts.push(new Chart(this.tripsChartRef.nativeElement, config));
   }
 
   buildDistanceChart() {
@@ -114,7 +131,8 @@ export class AdminAnalyticsPage implements OnInit, AfterViewInit, OnDestroy {
       new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
     );
     const data = this.analytics.map(d => parseFloat(d.total_distance || 0));
-    const chart = new Chart(this.distanceChartRef.nativeElement, {
+
+    const config: ChartConfiguration<'line'> = {
       type: 'line',
       data: {
         labels,
@@ -122,44 +140,50 @@ export class AdminAnalyticsPage implements OnInit, AfterViewInit, OnDestroy {
           label: 'Distance (km)',
           data,
           borderColor: '#8B5CF6',
-          backgroundColor: 'rgba(139, 92, 246, 0.1)',
-          borderWidth: 3,
+          backgroundColor: 'rgba(139, 92, 246, 0.07)',
+          borderWidth: 2.5,
           fill: true,
           tension: 0.4,
           pointBackgroundColor: '#8B5CF6',
           pointBorderColor: '#fff',
           pointBorderWidth: 2,
-          pointRadius: 5,
+          pointRadius: 4,
+          pointHoverRadius: 6,
         }]
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
           legend: { display: false },
           tooltip: {
+            ...TOOLTIP_BASE,
             callbacks: {
-              label: (ctx) => ` ${ctx.parsed.y} km`
+              label: ctx => ` ${(ctx.parsed.y ?? 0).toFixed(1)} km`
             }
           }
         },
         scales: {
           x: {
             grid: { display: false },
-            ticks: { color: '#94A3B8', font: { size: 11 } }
+            border: { display: false },
+            ticks: { color: TICK_COLOR, font: TICK_FONT }
           },
           y: {
             beginAtZero: true,
-            grid: { color: '#F1F5F9' },
+            grid: { color: GRID_COLOR },
+            border: { display: false },
             ticks: {
-              color: '#94A3B8',
-              font: { size: 11 },
-              callback: (v) => `${v} km`
+              color: TICK_COLOR,
+              font: TICK_FONT,
+              callback: v => `${v} km`
             }
           }
         }
       }
-    });
-    this.charts.push(chart);
+    };
+
+    this.charts.push(new Chart(this.distanceChartRef.nativeElement, config));
   }
 
   buildSpeedChart() {
@@ -169,112 +193,142 @@ export class AdminAnalyticsPage implements OnInit, AfterViewInit, OnDestroy {
     );
     const data = this.analytics.map(d => parseFloat(d.avg_speed || 0));
 
-    const chart = new Chart(this.speedChartRef.nativeElement, {
+    const config: ChartConfiguration<'line'> = {
       type: 'line',
       data: {
         labels,
-        datasets: [{
-          label: 'Avg Speed',
-          data,
-          borderColor: '#10B981',
-          backgroundColor: 'rgba(16, 185, 129, 0.1)',
-          borderWidth: 3,
-          fill: true,
-          tension: 0.4,
-          pointBackgroundColor: '#10B981',
-          pointBorderColor: '#fff',
-          pointBorderWidth: 2,
-          pointRadius: 5,
-        },
-        {
-          label: 'Speed Limit',
-          data: new Array(labels.length).fill(80),
-          borderColor: '#EF4444',
-          borderWidth: 2,
-          borderDash: [6, 4],
-          fill: false,
-          pointRadius: 0,
-          tension: 0,
-        }]
+        datasets: [
+          {
+            label: 'Avg Speed',
+            data,
+            borderColor: '#10B981',
+            backgroundColor: 'rgba(16, 185, 129, 0.07)',
+            borderWidth: 2.5,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: '#10B981',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+          },
+          {
+            label: 'Speed Limit (80)',
+            data: new Array(labels.length).fill(80),
+            borderColor: '#EF4444',
+            borderWidth: 1.5,
+            borderDash: [5, 5],
+            fill: false,
+            pointRadius: 0,
+            tension: 0,
+          }
+        ]
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
           legend: {
             display: true,
-            labels: { color: '#64748B', font: { size: 11 }, boxWidth: 12 }
+            position: 'top',
+            align: 'end',
+            labels: {
+              color: '#64748b',
+              font: TICK_FONT,
+              boxWidth: 10,
+              usePointStyle: true,
+              pointStyleWidth: 8,
+              padding: 16,
+            }
           },
           tooltip: {
+            ...TOOLTIP_BASE,
             callbacks: {
-              label: (ctx) => ` ${ctx.parsed.y} km/h`
+              label: ctx => ` ${(ctx.parsed.y ?? 0).toFixed(1)} km/h`
             }
           }
         },
         scales: {
           x: {
             grid: { display: false },
-            ticks: { color: '#94A3B8', font: { size: 11 } }
+            border: { display: false },
+            ticks: { color: TICK_COLOR, font: TICK_FONT }
           },
           y: {
-            beginAtZero: true,
-            grid: { color: '#F1F5F9' },
+            beginAtZero: false,
+            grid: { color: GRID_COLOR },
+            border: { display: false },
             ticks: {
-              color: '#94A3B8',
-              font: { size: 11 },
-              callback: (v) => `${v} km/h`
+              color: TICK_COLOR,
+              font: TICK_FONT,
+              callback: v => `${v} km/h`
             }
           }
         }
       }
-    });
-    this.charts.push(chart);
+    };
+
+    this.charts.push(new Chart(this.speedChartRef.nativeElement, config));
   }
 
   buildDriverChart() {
     if (!this.driverChartRef || !this.drivers.length) return;
 
+    const tripCounts = this.drivers.map(driver =>
+      this.trips.filter((t: any) =>
+        t.driver_id === driver.id || t.driver_name === driver.name
+      ).length
+    );
+
+    const filtered = this.drivers
+      .map((d, i) => ({ name: d.name, count: tripCounts[i] }))
+      .filter(d => d.count > 0);
+
     const colors = [
       '#06B6D4', '#8B5CF6', '#10B981',
-      '#F59E0B', '#EF4444', '#3B82F6'
+      '#F59E0B', '#EF4444', '#3B82F6',
+      '#EC4899', '#14B8A6',
     ];
 
-    const chart = new Chart(this.driverChartRef.nativeElement, {
+    const config: ChartConfiguration<'doughnut'> = {
       type: 'doughnut',
       data: {
-        labels: this.drivers.map(d => d.name),
+        labels: filtered.map(d => d.name),
         datasets: [{
-          data: this.drivers.map((_, i) =>
-            Math.floor(Math.random() * 10) + 1
-          ),
-          backgroundColor: colors,
+          data: filtered.map(d => d.count),
+          backgroundColor: colors.slice(0, filtered.length),
           borderColor: '#fff',
           borderWidth: 3,
-          hoverOffset: 8,
+          hoverOffset: 6,
         }]
       },
       options: {
         responsive: true,
-        cutout: '65%',
+        maintainAspectRatio: false,
+        cutout: '68%',
         plugins: {
           legend: {
             position: 'bottom',
             labels: {
-              color: '#64748B',
-              font: { size: 11 },
-              padding: 16,
-              boxWidth: 12,
+              color: '#64748b',
+              font: TICK_FONT,
+              padding: 14,
+              boxWidth: 10,
               usePointStyle: true,
+              pointStyleWidth: 8,
             }
           },
           tooltip: {
+            ...TOOLTIP_BASE,
             callbacks: {
-              label: (ctx) => ` ${ctx.label}: ${ctx.parsed} trips`
+              label: ctx => ` ${ctx.label}: ${ctx.parsed} trips`
             }
           }
         }
       }
-    });
-    this.charts.push(chart);
+    };
+
+    this.charts.push(new Chart(this.driverChartRef.nativeElement, config));
   }
 
   ngOnDestroy() {
