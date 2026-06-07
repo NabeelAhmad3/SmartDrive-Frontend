@@ -123,7 +123,8 @@ export class BackgroundGpsService {
     const now = Date.now();
     if (now - this.lastNotificationTime > this.NOTIFICATION_COOLDOWN) {
       this.lastNotificationTime = now;
-      await this.notifications.sendOverspeedAlert(speed, this.speedLimit);
+      await this.notifications.sendOverspeedAlert(speed, this.speedLimit,
+      this.currentTripId ?? undefined);
     }
   }
 

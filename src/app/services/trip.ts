@@ -70,5 +70,16 @@ export class TripService {
       overspeedCount: alerts.length,
     };
   }
-
+  async getTripGpsPoints(tripId: number): Promise<any[]> {
+    try {
+      const res: any = await firstValueFrom(
+        this.http.get(`${this.apiUrl}/gps/trip/${tripId}`,
+          { headers: this.headers() })
+      );
+      return res;
+    } catch (e) {
+      console.error('Failed to load GPS points:', e);
+      return [];
+    }
+  }
 }

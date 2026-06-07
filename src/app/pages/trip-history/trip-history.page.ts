@@ -6,12 +6,6 @@ import {
   IonContent, IonHeader, IonToolbar, IonIcon,
   IonSpinner, IonModal
 } from '@ionic/angular/standalone';
-import { addIcons } from 'ionicons';
-import {
-  arrowBackOutline, downloadOutline, searchOutline,
-  carOutline, chevronForwardOutline, closeOutline,
-  playOutline, stopOutline, flagOutline
-} from 'ionicons/icons';
 import * as L from 'leaflet';
 import { TripService } from 'src/app/services/trip';
 
@@ -29,7 +23,7 @@ import { TripService } from 'src/app/services/trip';
     IonToolbar,
     IonIcon,
     IonSpinner,
-    IonModal        
+    IonModal
   ]
 })
 export class TripHistoryPage implements OnInit {
@@ -58,13 +52,7 @@ export class TripHistoryPage implements OnInit {
   constructor(
     private tripService: TripService,
     private router: Router
-  ) {
-    addIcons({
-      arrowBackOutline, downloadOutline, searchOutline,
-      carOutline, chevronForwardOutline, closeOutline,
-      playOutline, stopOutline, flagOutline
-    });
-  }
+  ) { }
 
   async ngOnInit() {
     await this.loadTrips();
@@ -148,29 +136,60 @@ export class TripHistoryPage implements OnInit {
     setTimeout(() => this.initDetailMap(trip), 500);
   }
 
-  initDetailMap(trip: any) {
+  async initDetailMap(trip: any) {
     if (this.detailMap) {
       this.detailMap.remove();
       this.detailMap = null;
     }
+
     const el = document.getElementById('detail-map');
     if (!el) return;
+    this.detailMap = L.map('detail-map', { zoomControl: false })
+      .setView([31.5204, 74.3587], 13);
 
-    const lat = trip.start_lat || 31.5204;
-    const lng = trip.start_lng || 74.3587;
-
-    this.detailMap = L.map('detail-map').setView([lat, lng], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap'
     }).addTo(this.detailMap);
+    const points = await this.tripService.getTripGpsPoints(trip.id);
 
-    L.circleMarker([lat, lng], {
-      radius: 8,
-      fillColor: '#00D4FF',
-      color: '#fff',
-      weight: 2,
-      fillOpacity: 1
-    }).addTo(this.detailMap).bindPopup('Start').openPopup();
+    if (points.length === 0) {
+      console.warn('No GPS points found for trip', trip.id);
+      return;
+    }
+    const latLngs = points.map((p: any) => L.latLng(p.lat, p.lng));
+
+    L.polyline(latLngs, {
+      color: '#00D4FF',
+      weight: 4,
+      opacity: 0.8
+    }).addTo(this.detailMap);
+
+    const startIcon = L.divIcon({
+      className: '',
+      html: `<div style="width:14px;height:14px;background:#22C55E;
+           border:3px solid white;border-radius:50%;
+           box-shadow:0 0 8px #22C55E;"></div>`,
+      iconSize: [14, 14],
+      iconAnchor: [7, 7]
+    });
+
+    const endIcon = L.divIcon({
+      className: '',
+      html: `<div style="width:14px;height:14px;background:#EF4444;
+           border:3px solid white;border-radius:50%;
+           box-shadow:0 0 8px #EF4444;"></div>`,
+      iconSize: [14, 14],
+      iconAnchor: [7, 7]
+    });
+
+    L.marker(latLngs[0], { icon: startIcon })
+      .addTo(this.detailMap)
+      .bindPopup('Trip Start');
+
+    L.marker(latLngs[latLngs.length - 1], { icon: endIcon })
+      .addTo(this.detailMap)
+      .bindPopup('Trip End');
+    this.detailMap.fitBounds(L.latLngBounds(latLngs), { padding: [30, 30] });
   }
 
   closeDetail() {
