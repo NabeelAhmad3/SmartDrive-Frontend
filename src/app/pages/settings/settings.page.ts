@@ -23,7 +23,7 @@ export class SettingsPage implements OnInit {
   isOnline = navigator.onLine;
   speedLimit = 80;
   vibrationEnabled = true;
-  soundEnabled = false;
+  soundEnabled = true;
   backgroundTracking = true;
 
   constructor(

@@ -106,8 +106,8 @@ export class AdminDashboardPage implements OnInit {
   cancelLogout() {
     this.showLogoutModal = false;
   }
-  exportDashboardPdf() {
-    this.pdfExport.exportDashboard({
+  async exportDashboardPdf() {
+    await this.pdfExport.exportDashboard({
       totalDrivers: this.totalDrivers,
       totalTrips: this.totalTrips,
       totalAlerts: this.totalAlerts,
@@ -119,16 +119,16 @@ export class AdminDashboardPage implements OnInit {
     });
   }
 
-  exportDriversPdf() {
-    this.pdfExport.exportDrivers(this.drivers);
+  async exportDriversPdf() {
+    await this.pdfExport.exportDrivers(this.drivers);
   }
 
-  exportTripsPdf() {
-    this.pdfExport.exportTrips(this.recentTrips);
+  async exportTripsPdf() {
+    await this.pdfExport.exportTrips(this.recentTrips);
   }
 
-  exportAlertsPdf() {
-    this.pdfExport.exportAlerts(this.speedAlerts);
+  async exportAlertsPdf() {
+    await this.pdfExport.exportAlerts(this.speedAlerts);
   }
 
 }

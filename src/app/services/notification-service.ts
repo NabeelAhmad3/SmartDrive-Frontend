@@ -24,7 +24,7 @@ export class NotificationService {
     const s = localStorage.getItem('smartdrive_settings');
     return s ? JSON.parse(s) : {
       vibrationEnabled: true,
-      soundEnabled: false
+      soundEnabled: true
     };
   }
 
@@ -78,10 +78,10 @@ async sendOverspeedAlert(speed: number, limit: number, tripId?: number): Promise
     const { LocalNotifications } = await import('@capacitor/local-notifications');
     await LocalNotifications.schedule({
       notifications: [{
-        id: Math.floor(Date.now() / 1000),  // ✅ must be integer not huge timestamp
+        id: Math.floor(Date.now() / 1000),  
         title: '⚠️ Speed Limit Exceeded!',
         body: `Driving at ${Math.round(speed)} km/h — ${over} km/h over the ${limit} km/h limit.`,
-        channelId: 'overspeed_alert',        // ✅ use the channel with sound
+        channelId: 'overspeed_alert',   
         smallIcon: 'ic_stat_icon_config_sample',
         iconColor: '#EF4444',
         schedule: { at: new Date(Date.now() + 100) },

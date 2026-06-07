@@ -8,6 +8,7 @@ import {
 } from '@ionic/angular/standalone';
 import * as L from 'leaflet';
 import { TripService } from 'src/app/services/trip';
+import { PdfExportService } from 'src/app/services/pdf-export-service';
 
 @Component({
   selector: 'app-trip-history',
@@ -51,7 +52,8 @@ export class TripHistoryPage implements OnInit {
 
   constructor(
     private tripService: TripService,
-    private router: Router
+    private router: Router,
+    private pdfExport: PdfExportService
   ) { }
 
   async ngOnInit() {
@@ -70,7 +72,16 @@ export class TripHistoryPage implements OnInit {
       this.isLoading = false;
     }
   }
-
+  async exportPDF() {
+    await this.pdfExport.exportDriverTrips(
+      this.filteredTrips,
+      {
+        totalTrips: this.totalTrips,
+        totalDistance: this.totalDistance,
+        avgSpeed: this.avgSpeed,
+      }
+    );
+  }
   calculateSummary() {
     const completed = this.allTrips.filter(t => t.status === 'completed');
     this.totalTrips = this.allTrips.length;
@@ -199,25 +210,6 @@ export class TripHistoryPage implements OnInit {
       this.detailMap.remove();
       this.detailMap = null;
     }
-  }
-
-  exportCSV() {
-    const headers = [
-      'Trip ID', 'Start Time', 'End Time',
-      'Distance (km)', 'Max Speed', 'Avg Speed', 'Status'
-    ];
-    const rows = this.filteredTrips.map(t => [
-      t.id, t.start_time, t.end_time || '',
-      t.total_distance, t.max_speed, t.avg_speed, t.status
-    ]);
-    const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `smartdrive_trips_${Date.now()}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
   }
 
   goBack() {

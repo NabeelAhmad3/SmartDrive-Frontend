@@ -142,7 +142,8 @@ export class TripActivePage implements OnInit, OnDestroy {
       const now = Date.now();
       if (now - this.lastNotificationTime > this.notificationCooldown) {
         this.lastNotificationTime = now;
-        await this.notifications.sendOverspeedAlert(speed, this.speedLimit);
+        await this.notifications.sendOverspeedAlert(speed, this.speedLimit,
+        this.currentTripId ?? undefined);
       }
     }
   }
