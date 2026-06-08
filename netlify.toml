@@ -1,0 +1,8 @@
+[build]
+  command = "ionic build --prod"
+  publish = "www"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
