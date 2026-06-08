@@ -20,6 +20,7 @@ export class BackgroundGpsService {
   private speedLimit = 80;
   private lastNotificationTime = 0;
   private readonly NOTIFICATION_COOLDOWN = 30000;
+  private foregroundStarted = false;
 
   constructor(
     private notifications: NotificationService,
@@ -38,6 +39,7 @@ export class BackgroundGpsService {
     console.log('Starting tracking for trip ID:', tripId);
 
     if (this.isNative) {
+      await this.startForegroundNotification(tripId);
       await this.startNativeTracking();
     } else {
       this.startBrowserTracking();
@@ -57,9 +59,16 @@ export class BackgroundGpsService {
       }
 
       this.watchId = await Geolocation.watchPosition(
-        { enableHighAccuracy: true, timeout: 10000 },
+        {
+          enableHighAccuracy: true,
+          timeout: 5000,  
+        },
         (position, err) => {
-          if (err || !position) return;
+          if (err) {
+            console.error('GPS watch error:', err);
+            return;
+          }
+          if (!position) return;
           this.zone.run(() => this.handlePosition(
             position.coords.latitude,
             position.coords.longitude,
@@ -87,9 +96,46 @@ export class BackgroundGpsService {
         );
       },
       (err) => console.error('Browser GPS error:', err.code, err.message),
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
     );
   }
+
+  private async startForegroundNotification(tripId: number): Promise<void> {
+    if (this.foregroundStarted) return;
+    try {
+      const { LocalNotifications } = await import('@capacitor/local-notifications');
+      await LocalNotifications.schedule({
+        notifications: [{
+          id: 888888,
+          title: '🚗 SmartDrive — Trip Active',
+          body: `Trip #${tripId} is being tracked. GPS running in background.`,
+          ongoing: true,
+          autoCancel: false,
+          channelId: 'trip_updates',
+          smallIcon: 'ic_stat_icon_config_sample',
+          schedule: { at: new Date(Date.now() + 100) },
+        }]
+      });
+      this.foregroundStarted = true;
+      console.log('Foreground notification started');
+    } catch (e) {
+      console.error('Foreground notification error:', e);
+    }
+  }
+
+  private async stopForegroundNotification(): Promise<void> {
+    if (!this.foregroundStarted) return;
+    try {
+      const { LocalNotifications } = await import('@capacitor/local-notifications');
+      await LocalNotifications.cancel({
+        notifications: [{ id: 888888 }]
+      });
+      this.foregroundStarted = false;
+    } catch (e) {
+      console.error('Stop foreground notification error:', e);
+    }
+  }
+
   private async saveGpsPoint(tripId: number, lat: number, lng: number, speed: number) {
     try {
       await firstValueFrom(
@@ -109,7 +155,6 @@ export class BackgroundGpsService {
     this.currentSpeed$.next(speedKmh);
 
     if (this.currentTripId) {
-      console.log(`Saving point - Trip: ${this.currentTripId}, Speed: ${speedKmh}`);
       await this.saveGpsPoint(this.currentTripId, lat, lng, speedKmh);
     } else {
       console.warn('No active trip ID - point not saved');
@@ -123,8 +168,11 @@ export class BackgroundGpsService {
     const now = Date.now();
     if (now - this.lastNotificationTime > this.NOTIFICATION_COOLDOWN) {
       this.lastNotificationTime = now;
-      await this.notifications.sendOverspeedAlert(speed, this.speedLimit,
-      this.currentTripId ?? undefined);
+      await this.notifications.sendOverspeedAlert(
+        speed,
+        this.speedLimit,
+        this.currentTripId ?? undefined
+      );
     }
   }
 
@@ -139,6 +187,7 @@ export class BackgroundGpsService {
       navigator.geolocation.clearWatch(this.browserWatchId);
       this.browserWatchId = null;
     }
+    await this.stopForegroundNotification();
 
     this.currentTripId = null;
     this.isTracking$.next(false);

@@ -20,21 +20,21 @@ import { BackgroundGpsService } from 'src/app/services/background-gps-service';
 export class TripActivePage implements OnInit, OnDestroy {
 
   currentTripId: number | null = null;
-  isTracking    = false;
-  isLoading     = false;
-  tripStatus    = 'Ready';
-  currentSpeed  = 0;
-  maxSpeed      = 0;
-  speedLimit    = 80;
-  isOverspeed   = false;
-  currentLat    = 0;
-  currentLng    = 0;
+  isTracking = false;
+  isLoading = false;
+  tripStatus = 'Ready';
+  currentSpeed = 0;
+  maxSpeed = 0;
+  speedLimit = 80;
+  isOverspeed = false;
+  currentLat = 0;
+  currentLng = 0;
   totalSpeedSum = 0;
   totalSpeedReadings = 0;
-  private lastNotificationTime  = 0;
-  private notificationCooldown  = 30000;
-  tripDistance  = '0.0';
-  tripDuration  = '00:00';
+  private lastNotificationTime = 0;
+  private notificationCooldown = 30000;
+  tripDistance = '0.0';
+  tripDuration = '00:00';
   tripStartTime: Date | null = null;
   private map!: L.Map;
   private marker!: L.Marker;
@@ -59,6 +59,7 @@ export class TripActivePage implements OnInit, OnDestroy {
   async ngOnInit() {
     await this.notifications.requestPermission();
     setTimeout(() => this.initMap(), 300);
+    await this.restoreActiveTrip();
     this.positionSub = this.bgGps.currentPosition$.subscribe(pos => {
       if (!pos) return;
       this.currentLat = pos.lat;
@@ -85,14 +86,45 @@ export class TripActivePage implements OnInit, OnDestroy {
     }).addTo(this.map);
   }
 
+  private async restoreActiveTrip() {
+    const saved = localStorage.getItem('active_trip');
+    if (!saved) return;
+
+    const trip = JSON.parse(saved);
+    const startTime = new Date(trip.start_time).getTime();
+    const sixHours = 6 * 60 * 60 * 1000;
+    if (Date.now() - startTime > sixHours) {
+      localStorage.removeItem('active_trip');
+      return;
+    }
+    this.currentTripId = trip.id;
+    this.tripStartTime = new Date(trip.start_time);
+    this.isTracking = true;
+    this.tripStatus = 'In Progress';
+    this.speedLimit = trip.speedLimit ?? this.speedLimit;
+
+    if (!this.bgGps.isTracking) {
+      await this.bgGps.startTracking(trip.id, this.speedLimit);
+    }
+
+    this.startDurationTimer();
+  }
+
   async startTrip() {
     this.isLoading = true;
     try {
       const trip = await this.tripService.startTrip();
       this.currentTripId = trip.id;
       this.tripStartTime = new Date(trip.start_time);
-      this.isTracking    = true;
-      this.tripStatus    = 'In Progress';
+      this.isTracking = true;
+      this.tripStatus = 'In Progress';
+
+      localStorage.setItem('active_trip', JSON.stringify({
+        id: trip.id,
+        start_time: trip.start_time,
+        speedLimit: this.speedLimit
+      }));
+
       await this.bgGps.startTracking(trip.id, this.speedLimit);
       this.startDurationTimer();
       await this.notifications.sendTripStarted(trip.id);
@@ -143,7 +175,7 @@ export class TripActivePage implements OnInit, OnDestroy {
       if (now - this.lastNotificationTime > this.notificationCooldown) {
         this.lastNotificationTime = now;
         await this.notifications.sendOverspeedAlert(speed, this.speedLimit,
-        this.currentTripId ?? undefined);
+          this.currentTripId ?? undefined);
       }
     }
   }
@@ -164,16 +196,16 @@ export class TripActivePage implements OnInit, OnDestroy {
     this.isLoading = true;
     try {
       const avgSpeed = this.totalSpeedReadings > 0
-        ? Math.round(this.totalSpeedSum / this.totalSpeedReadings)
-        : 0;
+        ? Math.round(this.totalSpeedSum / this.totalSpeedReadings) : 0;
 
       await this.tripService.endTrip(this.currentTripId, {
         totalDistance: parseFloat(this.tripDistance),
-        maxSpeed:      this.maxSpeed,
+        maxSpeed: this.maxSpeed,
         avgSpeed
       });
       await this.bgGps.stopTracking();
       await this.notifications.sendTripEnded(this.tripDistance, this.tripDuration);
+      localStorage.removeItem('active_trip');
 
       clearInterval(this.durationInterval);
       this.isTracking = false;
