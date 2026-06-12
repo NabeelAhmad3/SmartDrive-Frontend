@@ -14,6 +14,9 @@ import {
   eyeOutline, mailOutline, lockClosedOutline, carSport, barChartOutline, peopleOutline, shieldCheckmarkOutline,
   speedometerOutline, timeOutline, warningOutline, analyticsOutline, pulseOutline, carSportOutline, trendingUpOutline,
   closeOutline,
+  sendOutline,
+  keyOutline,
+  checkmarkOutline,
 } from 'ionicons/icons';
 import { importProvidersFrom } from '@angular/core';
 ionicPwaElements(window);
@@ -37,6 +40,6 @@ addIcons({
   searchOutline, flagOutline, phonePortraitOutline, eyeOffOutline, eyeOutline,
   mailOutline, lockClosedOutline, carSport, shieldCheckmarkOutline, peopleOutline,
   barChartOutline, pulseOutline, analyticsOutline, carSportOutline, trendingUpOutline,
-  closeOutline,
+  closeOutline,sendOutline,keyOutline,checkmarkOutline
 
 });

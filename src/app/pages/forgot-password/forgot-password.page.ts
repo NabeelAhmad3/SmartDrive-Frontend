@@ -4,13 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { RouterModule } from '@angular/router';
+import { IonIcon } from "@ionic/angular/standalone";
 
 @Component({
   selector: 'app-forgot-password',
   templateUrl: './forgot-password.page.html',
   styleUrls: ['./forgot-password.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, FormsModule]
+  imports: [CommonModule, FormsModule, RouterModule, FormsModule, IonIcon]
 })
 
 export class ForgotPasswordPage {
