@@ -17,6 +17,8 @@ import {
   sendOutline,
   keyOutline,
   checkmarkOutline,
+  alertCircleOutline,
+  checkmarkCircleOutline,
 } from 'ionicons/icons';
 import { importProvidersFrom } from '@angular/core';
 ionicPwaElements(window);
@@ -40,6 +42,7 @@ addIcons({
   searchOutline, flagOutline, phonePortraitOutline, eyeOffOutline, eyeOutline,
   mailOutline, lockClosedOutline, carSport, shieldCheckmarkOutline, peopleOutline,
   barChartOutline, pulseOutline, analyticsOutline, carSportOutline, trendingUpOutline,
-  closeOutline,sendOutline,keyOutline,checkmarkOutline
+  closeOutline, sendOutline, keyOutline, checkmarkOutline, alertCircleOutline,
+  checkmarkCircleOutline,
 
 });
