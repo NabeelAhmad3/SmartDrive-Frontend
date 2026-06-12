@@ -92,4 +92,7 @@ export class LoginPage {
       this.isLoading = false;
     }
   }
+  goToForgotPassword() {
+  this.router.navigate(['/forgot-password']);
+}
 }
