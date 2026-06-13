@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonContent, IonHeader, IonTitle, IonToolbar, IonIcon } from '@ionic/angular/standalone';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 
@@ -23,7 +23,8 @@ export class ResetPasswordPage implements OnInit {
 
   constructor(
     private http: HttpClient,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -54,6 +55,9 @@ export class ResetPasswordPage implements OnInit {
       next: () => {
         this.success = true;
         this.isLoading = false;
+        setTimeout(() => {
+          this.router.navigate(['/login']);
+        }, 2000);
       },
       error: (e) => {
         this.errorMessage = e.error?.error || 'Invalid or expired link';
