@@ -20,6 +20,7 @@ export class ResetPasswordPage implements OnInit {
   isLoading = false;
   success = false;
   errorMessage = '';
+  showPassword = false;
 
   constructor(
     private http: HttpClient,
